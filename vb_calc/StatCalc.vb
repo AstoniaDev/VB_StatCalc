@@ -12,11 +12,15 @@
         frmSeyanCalc.Show()
     End Sub
 
-    Private Sub EquipCalc_Btn_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles EquipCalc_Btn.Click
+    Private Sub EquipCalc_Btn_Click(ByVal sender As System.Object, ByVal e As System.EventArgs)
         frmEquipmentCalc.Show()
     End Sub
 
-    Private Sub Button1_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles Button1.Click
+    Private Sub Button1_Click(ByVal sender As System.Object, ByVal e As System.EventArgs)
         frmNPC_Calc.Show()
+    End Sub
+
+    Private Sub Label5_Click(sender As Object, e As EventArgs) Handles Label5.Click
+
     End Sub
 End Class

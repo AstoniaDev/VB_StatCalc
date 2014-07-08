@@ -3,92 +3,111 @@
 Public Class frmWarriorCalc
 
     Public gLevel As Double
+    Public FileName As String = ""
+    Public MaxBase As Integer = 100
+
+    Private Function setEquipMod(ByVal EquipVal As Integer, ByVal MaxEquipVal As Integer, ByVal BlessValue As Integer) As Integer
+        If EquipVal + BlessValue = 0 Then Return 0
+
+        If EquipVal + BlessValue > Math.Floor(MaxEquipVal * 0.5) Then
+            Return Math.Floor(MaxEquipVal * 0.5)
+        Else
+            Return EquipVal + BlessValue
+        End If
+    End Function
+
+    Private Function setStatVal(ByVal BaseStat As Integer, ByVal WIAS As Integer) As Integer
+        Dim MaxStat As Integer
+        'set silly low stats
+        If BaseStat <= 7 Then
+            MaxStat = 15
+        Else
+            MaxStat = BaseStat * 2
+        End If
+        'set IAS mods
+        If WIAS > MaxStat Then
+            Return MaxStat
+        Else
+            Return WIAS
+        End If
+    End Function
+
+    Private Function GetExpValues(ByVal TxtBx As Integer, ByVal StartBase As Integer, ByVal StatFactor As Integer, ByVal ClassFactor As Double, ByVal PTMFactor As Integer) As Integer
+        Dim Exp As Integer
+
+        Exp = 0
+        Exp = Int((((TxtBx - StartBase) + 6) ^ 3) * (StatFactor * ClassFactor))
+        If TxtBx >= MaxBase Then Exp += 3000000 * PTMFactor
+        Return Exp
+
+    End Function
+
+    Private Function GetLevelExp(ByVal TxtBx As Integer, ByVal StartBase As Integer, ByVal StatFactor As Integer, ByVal ClassFactor As Double, ByVal PTMFactor As Integer) As Integer
+        Dim sVal, Exp As Integer
+
+        Exp = 0
+        sVal = StartBase
+        Do Until sVal = TxtBx
+            Exp += GetExpValues(sVal, StartBase, StatFactor, ClassFactor, PTMFactor)
+            sVal += 1
+        Loop
+        Return Exp
+
+    End Function
+
     Private Sub SetExpValues()
-        Dim sb As Integer
-        Dim sf As Integer
-        Dim cf As Double
-        Dim ExpReq As Integer
+        Dim StartBase, StatFactor, PTMFactor As Integer
+        Dim ClassFactor As Double
 
-        sb = 25
-        sf = 3
-        cf = 0.1
+        If Hardcore_Chk.Checked = True Then MaxBase = 122 Else MaxBase = 115
 
-        ExpReq = Int((((Int(HP_TxtBx.Text) - sb) + 6) ^ 3) * (sf * cf))
-        HP_ExpLbl.Text = ExpReq
+        StartBase = 10
+        StatFactor = 3
+        ClassFactor = 0.1
+        PTMFactor = 0
 
-        ExpReq = Int((((Int(End_TxtBx.Text) - sb) + 6) ^ 3) * (sf * cf))
-        End_ExpLbl.Text = ExpReq
 
-        sb = 10
-        sf = 2
+        HP_ExpLbl.Text = GetExpValues(Int(HP_TxtBx.Text), StartBase, StatFactor, ClassFactor, PTMFactor)
+        End_ExpLbl.Text = GetExpValues(Int(End_TxtBx.Text), StartBase, StatFactor, ClassFactor, PTMFactor)
 
-        ExpReq = Int((((Int(Wis_TxtBx.Text) - sb) + 6) ^ 3) * (sf * cf))
-        Wis_ExpLbl.Text = ExpReq
+        ' WIAS EXP Calculations
+        StatFactor = 2
+        PTMFactor = 2
+        Wis_ExpLbl.Text = GetExpValues(Int(Wis_TxtBx.Text), StartBase, StatFactor, ClassFactor, PTMFactor)
+        Int_ExpLbl.Text = GetExpValues(Int(Int_TxtBx.Text), StartBase, StatFactor, ClassFactor, PTMFactor)
+        Agi_ExpLbl.Text = GetExpValues(Int(Agi_TxtBx.Text), StartBase, StatFactor, ClassFactor, PTMFactor)
+        Str_ExpLbl.Text = GetExpValues(Int(Str_TxtBx.Text), StartBase, StatFactor, ClassFactor, PTMFactor)
 
-        ExpReq = Int((((Int(Int_TxtBx.Text) - sb) + 6) ^ 3) * (sf * cf))
-        Int_ExpLbl.Text = ExpReq
+        ' Skills and Spells EXP Calulations
+        StartBase = 1
+        StatFactor = 1
+        PTMFactor = 1
 
-        ExpReq = Int((((Int(Agi_TxtBx.Text) - sb) + 6) ^ 3) * (sf * cf))
-        Agi_ExpLbl.Text = ExpReq
+        Dagger_ExpLbl.Text = GetExpValues(Int(Dagger_TxtBx.Text), StartBase, StatFactor, ClassFactor, PTMFactor)
+        H2H_ExpLbl.Text = GetExpValues(Int(H2H_TxtBx.Text), StartBase, StatFactor, ClassFactor, PTMFactor)
+        Sword_ExpLbl.Text = GetExpValues(Int(Sword_TxtBx.Text), StartBase, StatFactor, ClassFactor, PTMFactor)
+        TwoHand_ExpLbl.Text = GetExpValues(Int(TwoHand_TxtBx.Text), StartBase, StatFactor, ClassFactor, PTMFactor)
+        Rage_ExpLbl.Text = GetExpValues(Int(Rage_TxtBx.Text), StartBase, StatFactor, ClassFactor, PTMFactor)
 
-        ExpReq = Int((((Int(Str_TxtBx.Text) - sb) + 6) ^ 3) * (sf * cf))
-        Str_ExpLbl.Text = ExpReq
+        AS_ExpLbl.Text = GetExpValues(Int(AS_TxtBx.Text), StartBase, StatFactor, ClassFactor, PTMFactor)
+        Attack_ExpLbl.Text = GetExpValues(Int(Attack_TxtBx.Text), StartBase, StatFactor, ClassFactor, PTMFactor)
+        Parry_ExpLbl.Text = GetExpValues(Int(Parry_TxtBx.Text), StartBase, StatFactor, ClassFactor, PTMFactor)
+        Tactics_ExpLbl.Text = GetExpValues(Int(Tactics_TxtBx.Text), StartBase, StatFactor, ClassFactor, PTMFactor)
+        Warcry_ExpLbl.Text = GetExpValues(Int(Warcry_TxtBx.Text), StartBase, StatFactor, ClassFactor, PTMFactor)
+        Surround_ExpLbl.Text = GetExpValues(Int(Surround_TxtBx.Text), StartBase, StatFactor, ClassFactor, PTMFactor)
+        Body_ExpLbl.Text = GetExpValues(Int(Body_TxtBx.Text), StartBase, StatFactor, ClassFactor, PTMFactor)
+        Speed_ExpLbl.Text = GetExpValues(Int(Speed_TxtBx.Text), StartBase, StatFactor, ClassFactor, PTMFactor)
 
-        sb = 1
-        sf = 1
+        Barter_ExpLbl.Text = GetExpValues(Int(Barter_TxtBx.Text), StartBase, StatFactor, ClassFactor, PTMFactor)
+        Perc_ExpLbl.Text = GetExpValues(Int(Perc_TxtBx.Text), StartBase, StatFactor, ClassFactor, PTMFactor)
+        Stealth_ExpLbl.Text = GetExpValues(Int(Stealth_TxtBx.Text), StartBase, StatFactor, ClassFactor, PTMFactor)
+        Regen_ExpLbl.Text = GetExpValues(Int(Regen_TxtBx.Text), StartBase, StatFactor, ClassFactor, PTMFactor)
+        Immunity_ExpLbl.Text = GetExpValues(Int(Immunity_TxtBx.Text), StartBase, StatFactor, ClassFactor, PTMFactor)
 
-        ExpReq = Int((((Int(Dagger_TxtBx.Text) - sb) + 6) ^ 3) * (sf * cf))
-        Dagger_ExpLbl.Text = ExpReq
-
-        ExpReq = Int((((Int(H2H_TxtBx.Text) - sb) + 6) ^ 3) * (sf * cf))
-        H2H_ExpLbl.Text = ExpReq
-
-        ExpReq = Int((((Int(Sword_TxtBx.Text) - sb) + 6) ^ 3) * (sf * cf))
-        Sword_ExpLbl.Text = ExpReq
-
-        ExpReq = Int((((Int(TwoHand_TxtBx.Text) - sb) + 6) ^ 3) * (sf * cf))
-        TwoHand_ExpLbl.Text = ExpReq
-
-        ExpReq = Int((((Int(Rage_TxtBx.Text) - sb) + 6) ^ 3) * (sf * cf))
-        Rage_ExpLbl.Text = ExpReq
-
-        ExpReq = Int((((Int(Attack_TxtBx.Text) - sb) + 6) ^ 3) * (sf * cf))
-        Attack_ExpLbl.Text = ExpReq
-
-        ExpReq = Int((((Int(Parry_TxtBx.Text) - sb) + 6) ^ 3) * (sf * cf))
-        Parry_ExpLbl.Text = ExpReq
-
-        ExpReq = Int((((Int(Tactics_TxtBx.Text) - sb) + 6) ^ 3) * (sf * cf))
-        Tactics_ExpLbl.Text = ExpReq
-
-        ExpReq = Int((((Int(Warcry_TxtBx.Text) - sb) + 6) ^ 3) * (sf * cf))
-        Warcry_ExpLbl.Text = ExpReq
-
-        ExpReq = Int((((Int(Surround_TxtBx.Text) - sb) + 6) ^ 3) * (sf * cf))
-        Surround_ExpLbl.Text = ExpReq
-
-        ExpReq = Int((((Int(Speed_TxtBx.Text) - sb) + 6) ^ 3) * (sf * cf))
-        Speed_ExpLbl.Text = ExpReq
-
-        ExpReq = Int((((Int(Immunity_TxtBx.Text) - sb) + 6) ^ 3) * (sf * cf))
-        Immunity_ExpLbl.Text = ExpReq
-
-        ExpReq = Int((((Int(Barter_TxtBx.Text) - sb) + 6) ^ 3) * (sf * cf))
-        Barter_ExpLbl.Text = ExpReq
-
-        ExpReq = Int((((Int(Perc_TxtBx.Text) - sb) + 6) ^ 3) * (sf * cf))
-        Perc_ExpLbl.Text = ExpReq
-
-        ExpReq = Int((((Int(Stealth_TxtBx.Text) - sb) + 6) ^ 3) * (sf * cf))
-        Stealth_ExpLbl.Text = ExpReq
-
-        ExpReq = Int((((Int(Regen_TxtBx.Text) - sb) + 6) ^ 3) * (sf * cf))
-        Regen_ExpLbl.Text = ExpReq
-
-        sf = 3
-
-        ExpReq = Int((((Int(Prof_TxtBx.Text) - sb) + 6) ^ 3) * (sf * cf))
-        Prof_ExpLbl.Text = ExpReq
+        ' Profession EXP Calculations
+        StatFactor = 3
+        PTMFactor = 0
+        Prof_ExpLbl.Text = GetExpValues(Int(Prof_TxtBx.Text), StartBase, StatFactor, ClassFactor, PTMFactor)
 
         SetMods()
 
@@ -96,329 +115,110 @@ Public Class frmWarriorCalc
 
     Private Sub SetMods()
         Dim WisMod, IntMod, AgiMod, StrMod As Integer
-        Dim AAS, IAS, SSA, SSI, WIS, IIW, AAI, SSS As Integer
-        Dim MaxStatVal, StatVal, MaxEquipVal, EquipVal, ModVal As Integer
-        Dim TactBonus, RageBonus As Integer
+        Dim IAS, SSA, WIS, IIW, SSS As Integer
+        Dim ImmTactBonus, WCTactBonus, RageBonus, BlessBonus As Integer
 
-        If ShowTact_Chk.Checked = True Then TactBonus = Int(TactBonus_TxtBx.Text) Else TactBonus = 0
         If ShowRage_Chk.Checked = True Then RageBonus = Int(RageBonus_TxtBx.Text) Else RageBonus = 0
 
-        MaxEquipVal = Math.Floor(Int(HP_TxtBx.Text) / 2)
-        EquipVal = Int(HP_Mod_TxtBx.Text)
-        If EquipVal > MaxEquipVal Then ModVal = MaxEquipVal Else ModVal = EquipVal
-        HP_Mod_Lbl.Text = Int(HP_TxtBx.Text) + ModVal
+        If Max_Bless_Chk.Checked = True Then BlessBonus = 1000 Else BlessBonus = 0
 
-        MaxEquipVal = Math.Floor(Int(End_TxtBx.Text) / 2)
-        EquipVal = Int(End_Mod_TxtBx.Text)
-        If EquipVal > MaxEquipVal Then ModVal = MaxEquipVal Else ModVal = EquipVal
-        End_Mod_Lbl.Text = Int(End_TxtBx.Text) + ModVal
+        HP_Mod_Lbl.Text = Int(HP_TxtBx.Text) + setEquipMod(Int(HP_Mod_TxtBx.Text), Int(HP_TxtBx.Text), 0)
+        End_Mod_Lbl.Text = Int(End_TxtBx.Text) + setEquipMod(Int(End_Mod_TxtBx.Text), Int(End_TxtBx.Text), 0)
 
-        MaxEquipVal = Math.Floor(Int(Wis_TxtBx.Text) / 2)
-        EquipVal = Int(Wis_Mod_TxtBx.Text)
-        If EquipVal > MaxEquipVal Then ModVal = MaxEquipVal Else ModVal = EquipVal
-        Wis_Mod_Lbl.Text = Int(Wis_TxtBx.Text) + ModVal
-
-        MaxEquipVal = Math.Floor(Int(Int_TxtBx.Text) / 2)
-        EquipVal = Int(Int_Mod_TxtBx.Text)
-        If EquipVal > MaxEquipVal Then ModVal = MaxEquipVal Else ModVal = EquipVal
-        Int_Mod_Lbl.Text = Int(Int_TxtBx.Text) + ModVal
-
-        MaxEquipVal = Math.Floor(Int(Agi_TxtBx.Text) / 2)
-        EquipVal = Int(Agi_Mod_TxtBx.Text)
-        If EquipVal > MaxEquipVal Then ModVal = MaxEquipVal Else ModVal = EquipVal
-        Agi_Mod_Lbl.Text = Int(Agi_TxtBx.Text) + ModVal
-
-        MaxEquipVal = Math.Floor(Int(Str_TxtBx.Text) / 2)
-        EquipVal = Int(Str_Mod_TxtBx.Text)
-        If EquipVal > MaxEquipVal Then ModVal = MaxEquipVal Else ModVal = EquipVal
-        Str_Mod_Lbl.Text = Int(Str_TxtBx.Text) + ModVal
+        Wis_Mod_Lbl.Text = Int(Wis_TxtBx.Text) + setEquipMod(Int(Wis_Mod_TxtBx.Text), Int(Wis_TxtBx.Text), BlessBonus) + Int(LDW_TxtBx.Text / 2) + Int(CW_TxtBx.Text)
+        Int_Mod_Lbl.Text = Int(Int_TxtBx.Text) + setEquipMod(Int(Int_Mod_TxtBx.Text), Int(Int_TxtBx.Text), BlessBonus) + Int(LDW_TxtBx.Text / 2) + Int(CW_TxtBx.Text)
+        Agi_Mod_Lbl.Text = Int(Agi_TxtBx.Text) + setEquipMod(Int(Agi_Mod_TxtBx.Text), Int(Agi_TxtBx.Text), BlessBonus) + Int(LDW_TxtBx.Text / 2) + Int(CW_TxtBx.Text)
+        Str_Mod_Lbl.Text = Int(Str_TxtBx.Text) + setEquipMod(Int(Str_Mod_TxtBx.Text), Int(Str_TxtBx.Text), BlessBonus) + Int(LDW_TxtBx.Text / 2) + Int(CW_TxtBx.Text)
 
         WisMod = Int(Wis_Mod_Lbl.Text)
         IntMod = Int(Int_Mod_Lbl.Text)
         AgiMod = Int(Agi_Mod_Lbl.Text)
         StrMod = Int(Str_Mod_Lbl.Text)
 
-        AAS = Math.Floor((AgiMod + AgiMod + StrMod) / 5)
         IAS = Math.Floor((IntMod + AgiMod + StrMod) / 5)
         SSA = Math.Floor((StrMod + StrMod + AgiMod) / 5)
-        SSI = Math.Floor((StrMod + StrMod + IntMod) / 5)
         WIS = Math.Floor((WisMod + IntMod + StrMod) / 5)
         IIW = Math.Floor((IntMod + IntMod + WisMod) / 5)
-        AAI = Math.Floor((AgiMod + AgiMod + IntMod) / 5)
         SSS = Math.Floor((StrMod + StrMod + StrMod) / 5)
 
-        If Int(Dagger_TxtBx.Text) <= 7 Then MaxStatVal = 15 Else MaxStatVal = Int(Dagger_TxtBx.Text) * 2
-        If IAS > MaxStatVal Then StatVal = MaxStatVal Else StatVal = IAS
-        If Int(Dagger_Mod_TxtBx.Text) > Int(Int(Dagger_TxtBx.Text) / 2) Then EquipVal = Int(Int(Dagger_TxtBx.Text) / 2) Else EquipVal = Int(Dagger_Mod_TxtBx.Text)
-        ModVal = Int(Dagger_TxtBx.Text) + StatVal + EquipVal
-        Dagger_Mod_Lbl.Text = ModVal + TactBonus
+        Dagger_Mod_Lbl.Text = Int(Dagger_TxtBx.Text) + setStatVal(Int(Dagger_TxtBx.Text), IAS) + setEquipMod(Int(Dagger_Mod_TxtBx.Text), Int(Dagger_TxtBx.Text), 0)
+        H2H_Mod_Lbl.Text = Int(H2H_TxtBx.Text) + setStatVal(Int(H2H_TxtBx.Text), SSA) + setEquipMod(Int(H2H_Mod_TxtBx.Text), Int(H2H_TxtBx.Text), 0)
+        Sword_Mod_Lbl.Text = Int(Sword_TxtBx.Text) + setStatVal(Int(Sword_TxtBx.Text), IAS) + setEquipMod(Int(Sword_Mod_TxtBx.Text), Int(Sword_TxtBx.Text), 0)
+        TwoHand_Mod_Lbl.Text = Int(TwoHand_TxtBx.Text) + setStatVal(Int(TwoHand_TxtBx.Text), SSA) + setEquipMod(Int(TwoHand_Mod_TxtBx.Text), Int(TwoHand_TxtBx.Text), 0)
+        Rage_Mod_Lbl.Text = Int(Rage_TxtBx.Text) + setStatVal(Int(Rage_TxtBx.Text), SSA) + setEquipMod(Int(Rage_Mod_TxtBx.Text), Int(Rage_TxtBx.Text), 0)
 
-        If Int(H2H_TxtBx.Text) <= 7 Then MaxStatVal = 15 Else MaxStatVal = Int(H2H_TxtBx.Text) * 2
-        If SSA > MaxStatVal Then StatVal = MaxStatVal Else StatVal = SSA
-        If Int(H2H_Mod_TxtBx.Text) > Int(Int(H2H_TxtBx.Text) / 2) Then EquipVal = Int(Int(H2H_TxtBx.Text) / 2) Else EquipVal = Int(H2H_Mod_TxtBx.Text)
-        ModVal = Int(H2H_TxtBx.Text) + StatVal + EquipVal
-        H2H_Mod_Lbl.Text = ModVal + TactBonus
+        Attack_Mod_Lbl.Text = Int(Attack_TxtBx.Text) + setStatVal(Int(Attack_TxtBx.Text), IAS) + setEquipMod(Int(Attack_Mod_TxtBx.Text), Int(Attack_TxtBx.Text), 0)
+        Parry_Mod_Lbl.Text = Int(Parry_TxtBx.Text) + setStatVal(Int(Parry_TxtBx.Text), IAS) + setEquipMod(Int(Parry_Mod_TxtBx.Text), Int(Parry_TxtBx.Text), 0)
+        Tactics_Mod_Lbl.Text = Int(Tactics_TxtBx.Text) + setStatVal(Int(Tactics_TxtBx.Text), IAS) + setEquipMod(Int(Tactics_Mod_TxtBx.Text), Int(Tactics_TxtBx.Text), 0)
+        If ShowTact_Chk.Checked = True Then ImmTactBonus = Int((Tactics_Mod_Lbl.Text + 14) * 0.125) Else ImmTactBonus = 0
+        If ShowTact_Chk.Checked = True Then WCTactBonus = Int(Tactics_Mod_Lbl.Text * 0.125) Else WCTactBonus = 0
+        Warcry_Mod_Lbl.Text = Int(Warcry_TxtBx.Text) + setStatVal(Int(Warcry_TxtBx.Text), IAS) + setEquipMod(Int(Warcry_Mod_TxtBx.Text), Int(Warcry_TxtBx.Text), 0) + WCTactBonus
+        Surround_Mod_Lbl.Text = Int(Surround_TxtBx.Text) + setStatVal(Int(Surround_TxtBx.Text), IAS) + setEquipMod(Int(Surround_Mod_TxtBx.Text), Int(Surround_TxtBx.Text), 0)
+        Body_Mod_Lbl.Text = Int(Body_TxtBx.Text) + setStatVal(Int(Body_TxtBx.Text), IAS) + setEquipMod(Int(Body_Mod_TxtBx.Text), Int(Body_TxtBx.Text), 0)
+        Speed_Mod_Lbl.Text = Int(Speed_TxtBx.Text) + setStatVal(Int(Speed_TxtBx.Text), IAS) + setEquipMod(Int(Speed_Mod_TxtBx.Text), Int(Speed_TxtBx.Text), 0)
 
-
-        If Int(Sword_TxtBx.Text) <= 7 Then MaxStatVal = 15 Else MaxStatVal = Int(Sword_TxtBx.Text) * 2
-        If IAS > MaxStatVal Then StatVal = MaxStatVal Else StatVal = IAS
-        If Int(Sword_Mod_TxtBx.Text) > Int(Int(Sword_TxtBx.Text) / 2) Then EquipVal = Int(Int(Sword_TxtBx.Text) / 2) Else EquipVal = Int(Sword_Mod_TxtBx.Text)
-        ModVal = Int(Sword_TxtBx.Text) + StatVal + EquipVal
-        Sword_Mod_Lbl.Text = ModVal + TactBonus
-
-
-        If Int(TwoHand_TxtBx.Text) <= 7 Then MaxStatVal = 15 Else MaxStatVal = Int(TwoHand_TxtBx.Text) * 2
-        If SSA > MaxStatVal Then StatVal = MaxStatVal Else StatVal = SSA
-        If Int(TwoHand_Mod_TxtBx.Text) > Int(Int(TwoHand_TxtBx.Text) / 2) Then EquipVal = Int(Int(TwoHand_TxtBx.Text) / 2) Else EquipVal = Int(TwoHand_Mod_TxtBx.Text)
-        ModVal = Int(TwoHand_TxtBx.Text) + StatVal + EquipVal
-        TwoHand_Mod_Lbl.Text = ModVal + TactBonus
-
-
-        If Int(Rage_TxtBx.Text) <= 7 Then MaxStatVal = 15 Else MaxStatVal = Int(Rage_TxtBx.Text) * 2
-        If SSI > MaxStatVal Then StatVal = MaxStatVal Else StatVal = SSI
-        If Int(Rage_Mod_TxtBx.Text) > Int(Int(Rage_TxtBx.Text) / 2) Then EquipVal = Int(Int(Rage_TxtBx.Text) / 2) Else EquipVal = Int(Rage_Mod_TxtBx.Text)
-        ModVal = Int(Rage_TxtBx.Text) + StatVal + EquipVal
-        Rage_Mod_Lbl.Text = ModVal + TactBonus
-
-
-        If Int(Attack_TxtBx.Text) <= 7 Then MaxStatVal = 15 Else MaxStatVal = Int(Attack_TxtBx.Text) * 2
-        If IAS > MaxStatVal Then StatVal = MaxStatVal Else StatVal = IAS
-        If Int(Attack_Mod_TxtBx.Text) > Int(Int(Attack_TxtBx.Text) / 2) Then EquipVal = Int(Int(Attack_TxtBx.Text) / 2) Else EquipVal = Int(Attack_Mod_TxtBx.Text)
-        ModVal = Int(Attack_TxtBx.Text) + StatVal + EquipVal
-        Attack_Mod_Lbl.Text = ModVal + TactBonus
-
-
-        If Int(Parry_TxtBx.Text) <= 7 Then MaxStatVal = 15 Else MaxStatVal = Int(Parry_TxtBx.Text) * 2
-        If IAS > MaxStatVal Then StatVal = MaxStatVal Else StatVal = IAS
-        If Int(Parry_Mod_TxtBx.Text) > Int(Int(Parry_TxtBx.Text) / 2) Then EquipVal = Int(Int(Parry_TxtBx.Text) / 2) Else EquipVal = Int(Parry_Mod_TxtBx.Text)
-        ModVal = Int(Parry_TxtBx.Text) + StatVal + EquipVal
-        Parry_Mod_Lbl.Text = ModVal + TactBonus
-
-
-        If Int(Tactics_TxtBx.Text) <= 7 Then MaxStatVal = 15 Else MaxStatVal = Int(Tactics_TxtBx.Text) * 2
-        If IAS > MaxStatVal Then StatVal = MaxStatVal Else StatVal = IAS
-        If Int(Tactics_Mod_TxtBx.Text) > Int(Int(Tactics_TxtBx.Text) / 2) Then EquipVal = Int(Int(Tactics_TxtBx.Text) / 2) Else EquipVal = Int(Tactics_Mod_TxtBx.Text)
-        ModVal = Int(Tactics_TxtBx.Text) + StatVal + EquipVal
-        Tactics_Mod_Lbl.Text = ModVal
-
-
-        If Int(Warcry_TxtBx.Text) <= 7 Then MaxStatVal = 15 Else MaxStatVal = Int(Warcry_TxtBx.Text) * 2
-        If IAS > MaxStatVal Then StatVal = MaxStatVal Else StatVal = IAS
-        If Int(Warcry_Mod_TxtBx.Text) > Int(Int(Warcry_TxtBx.Text) / 2) Then EquipVal = Int(Int(Warcry_TxtBx.Text) / 2) Else EquipVal = Int(Warcry_Mod_TxtBx.Text)
-        ModVal = Int(Warcry_TxtBx.Text) + StatVal + EquipVal
-        Warcry_Mod_Lbl.Text = ModVal + TactBonus
-
-
-        If Int(Surround_TxtBx.Text) <= 7 Then MaxStatVal = 15 Else MaxStatVal = Int(Surround_TxtBx.Text) * 2
-        If IAS > MaxStatVal Then StatVal = MaxStatVal Else StatVal = IAS
-        If Int(Surround_Mod_TxtBx.Text) > Int(Int(Surround_TxtBx.Text) / 2) Then EquipVal = Int(Int(Surround_TxtBx.Text) / 2) Else EquipVal = Int(Surround_Mod_TxtBx.Text)
-        ModVal = Int(Surround_TxtBx.Text) + StatVal + EquipVal
-        Surround_Mod_Lbl.Text = ModVal + TactBonus
-
-
-        If Int(Speed_TxtBx.Text) <= 7 Then MaxStatVal = 15 Else MaxStatVal = Int(Speed_TxtBx.Text) * 2
-        If IAS > MaxStatVal Then StatVal = MaxStatVal Else StatVal = IAS
-        If Int(Speed_Mod_TxtBx.Text) > Int(Int(Speed_TxtBx.Text) / 2) Then EquipVal = Int(Int(Speed_TxtBx.Text) / 2) Else EquipVal = Int(Speed_Mod_TxtBx.Text)
-        ModVal = Int(Speed_TxtBx.Text) + StatVal + EquipVal
-        Speed_Mod_Lbl.Text = ModVal + TactBonus
-
-
-        If Int(Immunity_TxtBx.Text) <= 7 Then MaxStatVal = 15 Else MaxStatVal = Int(Immunity_TxtBx.Text) * 2
-        If WIS > MaxStatVal Then StatVal = MaxStatVal Else StatVal = WIS
-        If Int(Immunity_Mod_TxtBx.Text) > Int(Int(Immunity_TxtBx.Text) / 2) Then EquipVal = Int(Int(Immunity_TxtBx.Text) / 2) Else EquipVal = Int(Immunity_Mod_TxtBx.Text)
-        ModVal = Int(Immunity_TxtBx.Text) + StatVal + EquipVal
-        Immunity_Mod_Lbl.Text = ModVal + TactBonus + RageBonus
-
-
-        If Int(Barter_TxtBx.Text) <= 7 Then MaxStatVal = 15 Else MaxStatVal = Int(Barter_TxtBx.Text) * 2
-        If IIW > MaxStatVal Then StatVal = MaxStatVal Else StatVal = IIW
-        If Int(Barter_Mod_TxtBx.Text) > Int(Int(Barter_TxtBx.Text) / 2) Then EquipVal = Int(Int(Barter_TxtBx.Text) / 2) Else EquipVal = Int(Barter_Mod_TxtBx.Text)
-        ModVal = Int(Barter_TxtBx.Text) + StatVal + EquipVal
-        Barter_Mod_Lbl.Text = ModVal + TactBonus
-
-
-        If Int(Perc_TxtBx.Text) <= 7 Then MaxStatVal = 15 Else MaxStatVal = Int(Perc_TxtBx.Text) * 2
-        If IIW > MaxStatVal Then StatVal = MaxStatVal Else StatVal = IIW
-        If Int(Perc_Mod_TxtBx.Text) > Int(Int(Perc_TxtBx.Text) / 2) Then EquipVal = Int(Int(Perc_TxtBx.Text) / 2) Else EquipVal = Int(Perc_Mod_TxtBx.Text)
-        ModVal = Int(Perc_TxtBx.Text) + StatVal + EquipVal
-        Perc_Mod_Lbl.Text = ModVal + TactBonus
-
-
-        If Int(Stealth_TxtBx.Text) <= 7 Then MaxStatVal = 15 Else MaxStatVal = Int(Stealth_TxtBx.Text) * 2
-        If AAI > MaxStatVal Then StatVal = MaxStatVal Else StatVal = AAI
-        If Int(Stealth_Mod_TxtBx.Text) > Int(Int(Stealth_TxtBx.Text) / 2) Then EquipVal = Int(Int(Stealth_TxtBx.Text) / 2) Else EquipVal = Int(Stealth_Mod_TxtBx.Text)
-        ModVal = Int(Stealth_TxtBx.Text) + StatVal + EquipVal
-        Stealth_Mod_Lbl.Text = ModVal + TactBonus
-
-
-        If Int(Regen_TxtBx.Text) <= 7 Then MaxStatVal = 15 Else MaxStatVal = Int(Regen_TxtBx.Text) * 2
-        If SSS > MaxStatVal Then StatVal = MaxStatVal Else StatVal = SSS
-        If Int(Regen_Mod_TxtBx.Text) > Int(Int(Regen_TxtBx.Text) / 2) Then EquipVal = Int(Int(Regen_TxtBx.Text) / 2) Else EquipVal = Int(Regen_Mod_TxtBx.Text)
-        ModVal = Int(Regen_TxtBx.Text) + StatVal + EquipVal
-        Regen_Mod_Lbl.Text = ModVal + TactBonus
+        Barter_Mod_Lbl.Text = Int(Barter_TxtBx.Text) + setStatVal(Int(Barter_TxtBx.Text), IIW) + setEquipMod(Int(Barter_Mod_TxtBx.Text), Int(Barter_TxtBx.Text), 0)
+        Perc_Mod_Lbl.Text = Int(Perc_TxtBx.Text) + setStatVal(Int(Perc_TxtBx.Text), IIW) + setEquipMod(Int(Perc_Mod_TxtBx.Text), Int(Perc_TxtBx.Text), 0) + Int(Thief_TxtBx.Text / 2)
+        Stealth_Mod_Lbl.Text = Int(Stealth_TxtBx.Text) + setStatVal(Int(Stealth_TxtBx.Text), IIW) + setEquipMod(Int(Stealth_Mod_TxtBx.Text), Int(Perc_TxtBx.Text), 0) + Int(Thief_TxtBx.Text)
+        Regen_Mod_Lbl.Text = Int(Regen_TxtBx.Text) + setStatVal(Int(Regen_TxtBx.Text), SSS) + setEquipMod(Int(Regen_Mod_TxtBx.Text), Int(Regen_TxtBx.Text), 0)
+        Immunity_Mod_Lbl.Text = Int(Immunity_TxtBx.Text) + setStatVal(Int(Immunity_TxtBx.Text), WIS) + setEquipMod(Int(Immunity_Mod_TxtBx.Text), Int(Immunity_TxtBx.Text), 0) + ImmTactBonus
 
         SetLevel()
 
     End Sub
 
     Private Sub SetLevel()
-        Dim sVal As Integer
         Dim TotalExp, ReqLevel As Double
-        Dim sb1, sb2, sb3, sb4 As Integer 'Base Values
-        Dim sf1, sf2, sf3, sf4 As Integer 'Scale Factors
-        Dim cf1, cf2, cf3 As Double 'Class Factors
-        'Set Base Values for Stats
-        sb1 = 25
-        sb2 = 10
-        sb3 = 1
-        sb4 = 1
-        'Set Scale Factors for groups
-        sf1 = 3
-        sf2 = 2
-        sf3 = 1
-        sf4 = 3
-        'Set Class Factor Values
-        cf1 = 0.1333333333333
-        cf2 = 0.1
-        cf3 = 0.1
+        Dim StartBase, StatFactor, PTMFactor As Integer
+        Dim ClassFactor As Double
 
-        sVal = 25
-        Do Until sVal = Int(HP_TxtBx.Text)
-            TotalExp = TotalExp + Int((((sVal - sb1) + 6) ^ 3) * (sf1 * cf2))
-            sVal = sVal + 1
-        Loop
+        TotalExp = 0
+        StartBase = 10
+        StatFactor = 3
+        ClassFactor = 0.1
+        PTMFactor = 0
 
-        sVal = 25
-        Do Until sVal = Int(End_TxtBx.Text)
-            TotalExp = TotalExp + Int((((sVal - sb1) + 6) ^ 3) * (sf1 * cf2))
-            sVal = sVal + 1
-        Loop
+        TotalExp += GetLevelExp(Int(HP_TxtBx.Text), StartBase, StatFactor, ClassFactor, PTMFactor)
+        TotalExp += GetLevelExp(Int(End_TxtBx.Text), StartBase, StatFactor, ClassFactor, PTMFactor)
 
-        sVal = 10
-        Do Until sVal = Int(Wis_TxtBx.Text)
-            TotalExp = TotalExp + Int((((sVal - sb2) + 6) ^ 3) * (sf2 * cf2))
-            sVal = sVal + 1
-        Loop
+        ' WIAS EXP Calculations
+        StatFactor = 2
+        PTMFactor = 2
+        TotalExp += GetLevelExp(Int(Wis_TxtBx.Text), StartBase, StatFactor, ClassFactor, PTMFactor)
+        TotalExp += GetLevelExp(Int(Int_TxtBx.Text), StartBase, StatFactor, ClassFactor, PTMFactor)
+        TotalExp += GetLevelExp(Int(Agi_TxtBx.Text), StartBase, StatFactor, ClassFactor, PTMFactor)
+        TotalExp += GetLevelExp(Int(Str_TxtBx.Text), StartBase, StatFactor, ClassFactor, PTMFactor)
 
-        sVal = 10
-        Do Until sVal = Int(Int_TxtBx.Text)
-            TotalExp = TotalExp + Int((((sVal - sb2) + 6) ^ 3) * (sf2 * cf2))
-            sVal = sVal + 1
-        Loop
+        ' Skills and Spells EXP Calulations
+        StartBase = 1
+        StatFactor = 1
+        PTMFactor = 1
 
-        sVal = 10
-        Do Until sVal = Int(Agi_TxtBx.Text)
-            TotalExp = TotalExp + Int((((sVal - sb2) + 6) ^ 3) * (sf2 * cf2))
-            sVal = sVal + 1
-        Loop
+        TotalExp += GetLevelExp(Int(Dagger_TxtBx.Text), StartBase, StatFactor, ClassFactor, PTMFactor)
+        TotalExp += GetLevelExp(Int(H2H_TxtBx.Text), StartBase, StatFactor, ClassFactor, PTMFactor)
+        TotalExp += GetLevelExp(Int(Sword_TxtBx.Text), StartBase, StatFactor, ClassFactor, PTMFactor)
+        TotalExp += GetLevelExp(Int(TwoHand_TxtBx.Text), StartBase, StatFactor, ClassFactor, PTMFactor)
+        TotalExp += GetLevelExp(Int(Rage_TxtBx.Text), StartBase, StatFactor, ClassFactor, PTMFactor)
 
-        sVal = 10
-        Do Until sVal = Int(Str_TxtBx.Text)
-            TotalExp = TotalExp + Int((((sVal - sb2) + 6) ^ 3) * (sf2 * cf2))
-            sVal = sVal + 1
-        Loop
+        TotalExp += GetLevelExp(Int(AS_TxtBx.Text), StartBase, StatFactor, ClassFactor, PTMFactor)
+        TotalExp += GetLevelExp(Int(Attack_TxtBx.Text), StartBase, StatFactor, ClassFactor, PTMFactor)
+        TotalExp += GetLevelExp(Int(Parry_TxtBx.Text), StartBase, StatFactor, ClassFactor, PTMFactor)
+        TotalExp += GetLevelExp(Int(Tactics_TxtBx.Text), StartBase, StatFactor, ClassFactor, PTMFactor)
+        TotalExp += GetLevelExp(Int(Warcry_TxtBx.Text), StartBase, StatFactor, ClassFactor, PTMFactor)
+        TotalExp += GetLevelExp(Int(Surround_TxtBx.Text), StartBase, StatFactor, ClassFactor, PTMFactor)
+        TotalExp += GetLevelExp(Int(Body_TxtBx.Text), StartBase, StatFactor, ClassFactor, PTMFactor)
+        TotalExp += GetLevelExp(Int(Speed_TxtBx.Text), StartBase, StatFactor, ClassFactor, PTMFactor)
 
-        sVal = 1
-        Do Until sVal = Int(Dagger_TxtBx.Text)
-            TotalExp = TotalExp + Int((((sVal - sb3) + 6) ^ 3) * (sf3 * cf2))
-            sVal = sVal + 1
-        Loop
+        TotalExp += GetLevelExp(Int(Barter_TxtBx.Text), StartBase, StatFactor, ClassFactor, PTMFactor)
+        TotalExp += GetLevelExp(Int(Perc_TxtBx.Text), StartBase, StatFactor, ClassFactor, PTMFactor)
+        TotalExp += GetLevelExp(Int(Stealth_TxtBx.Text), StartBase, StatFactor, ClassFactor, PTMFactor)
+        TotalExp += GetLevelExp(Int(Regen_TxtBx.Text), StartBase, StatFactor, ClassFactor, PTMFactor)
+        TotalExp += GetLevelExp(Int(Immunity_TxtBx.Text), StartBase, StatFactor, ClassFactor, PTMFactor)
 
-        sVal = 1
-        Do Until sVal = Int(H2H_TxtBx.Text)
-            TotalExp = TotalExp + Int((((sVal - sb3) + 6) ^ 3) * (sf3 * cf2))
-            sVal = sVal + 1
-        Loop
-
-        sVal = 1
-        Do Until sVal = Int(Sword_TxtBx.Text)
-            TotalExp = TotalExp + Int((((sVal - sb3) + 6) ^ 3) * (sf3 * cf2))
-            sVal = sVal + 1
-        Loop
-
-        sVal = 1
-        Do Until sVal = Int(TwoHand_TxtBx.Text)
-            TotalExp = TotalExp + Int((((sVal - sb3) + 6) ^ 3) * (sf3 * cf2))
-            sVal = sVal + 1
-        Loop
-
-        sVal = 1
-        Do Until sVal = Int(Rage_TxtBx.Text)
-            TotalExp = TotalExp + Int((((sVal - sb3) + 6) ^ 3) * (sf3 * cf2))
-            sVal = sVal + 1
-        Loop
-
-        sVal = 1
-        Do Until sVal = Int(Attack_TxtBx.Text)
-            TotalExp = TotalExp + Int((((sVal - sb3) + 6) ^ 3) * (sf3 * cf2))
-            sVal = sVal + 1
-        Loop
-
-        sVal = 1
-        Do Until sVal = Int(Parry_TxtBx.Text)
-            TotalExp = TotalExp + Int((((sVal - sb3) + 6) ^ 3) * (sf3 * cf2))
-            sVal = sVal + 1
-        Loop
-
-        sVal = 1
-        Do Until sVal = Int(Tactics_TxtBx.Text)
-            TotalExp = TotalExp + Int((((sVal - sb3) + 6) ^ 3) * (sf3 * cf2))
-            sVal = sVal + 1
-        Loop
-
-        sVal = 1
-        Do Until sVal = Int(Warcry_TxtBx.Text)
-            TotalExp = TotalExp + Int((((sVal - sb3) + 6) ^ 3) * (sf3 * cf2))
-            sVal = sVal + 1
-        Loop
-
-        sVal = 1
-        Do Until sVal = Int(Surround_TxtBx.Text)
-            TotalExp = TotalExp + Int((((sVal - sb3) + 6) ^ 3) * (sf3 * cf2))
-            sVal = sVal + 1
-        Loop
-
-        sVal = 1
-        Do Until sVal = Int(Speed_TxtBx.Text)
-            TotalExp = TotalExp + Int((((sVal - sb3) + 6) ^ 3) * (sf3 * cf2))
-            sVal = sVal + 1
-        Loop
-
-        sVal = 1
-        Do Until sVal = Int(Immunity_TxtBx.Text)
-            TotalExp = TotalExp + Int((((sVal - sb3) + 6) ^ 3) * (sf3 * cf2))
-            sVal = sVal + 1
-        Loop
-
-        sVal = 1
-        Do Until sVal = Int(Barter_TxtBx.Text)
-            TotalExp = TotalExp + Int((((sVal - sb3) + 6) ^ 3) * (sf3 * cf2))
-            sVal = sVal + 1
-        Loop
-
-        sVal = 1
-        Do Until sVal = Int(Perc_TxtBx.Text)
-            TotalExp = TotalExp + Int((((sVal - sb3) + 6) ^ 3) * (sf3 * cf2))
-            sVal = sVal + 1
-        Loop
-
-        sVal = 1
-        Do Until sVal = Int(Stealth_TxtBx.Text)
-            TotalExp = TotalExp + Int((((sVal - sb3) + 6) ^ 3) * (sf3 * cf2))
-            sVal = sVal + 1
-        Loop
-
-        sVal = 1
-        Do Until sVal = Int(Regen_TxtBx.Text)
-            TotalExp = TotalExp + Int((((sVal - sb3) + 6) ^ 3) * (sf3 * cf2))
-            sVal = sVal + 1
-        Loop
-
-        sVal = 1
-        Do Until sVal = Int(Prof_TxtBx.Text)
-            TotalExp = TotalExp + Int((((sVal - sb4) + 6) ^ 3) * (sf4 * cf2))
-            sVal = sVal + 1
-        Loop
+        ' Profession EXP Calculations
+        StatFactor = 3
+        PTMFactor = 0
+        TotalExp += GetLevelExp(Int(Prof_TxtBx.Text), StartBase, StatFactor, ClassFactor, PTMFactor)
 
         ReqLevel = TotalExp ^ 0.25
         If ReqLevel = 0 Then Level_TxtBx.Text = 1 Else Level_TxtBx.Text = ReqLevel
@@ -430,73 +230,94 @@ Public Class frmWarriorCalc
     End Sub
 
     Private Sub SetExtraValues()
-        Dim wv_add, x As Integer
-        Dim wv As Double
-        Dim ws1, ws2, ws_max As Integer
-        Dim AAS_VAL As Double
-        Dim RageBonus As Integer
+        Dim wv, av As Double
+        Dim ws1, ws2, ws_max, ws_type As Integer
+        Dim RageBonus, Duration As Integer
 
-        wv = 0
-        wv_add = 1
-        x = 0
+        'Calculate Armour Value
+        If Int(AS_TxtBx.Text) >= 110 Then av = 96.5 Else av = 6.5 + (Math.Floor(Int(AS_TxtBx.Text) / 10 + 1) * 7.5)
 
-        Do While x < Int(Str_Mod_Lbl.Text)
+        AV_TxtBx.Text = av + (Int(Body_Mod_Lbl.Text) + Int(AS_TxtBx.Text)) * 0.25
 
-            If wv_add = 1 Then
-                wv = wv + 0.1
-                wv_add = 0
-            Else
-                wv = wv + 0.15
-                wv_add = 1
-            End If
+        'Calculate tactics 
+        ImmTactBonus_TxtBx.Text = Int(Int(Tactics_Mod_Lbl.Text + 14) * 0.125)
+        WCTactBonus_TxtBx.Text = Int(Int(Tactics_Mod_Lbl.Text) * 0.125)
+        OffDefTactBonus_TxtBx.Text = Int(Int(Tactics_Mod_Lbl.Text) * 0.375)
+        ImmNxtTact.Text = Int(((Int(ImmTactBonus_TxtBx.Text) + 1) / 0.125) + 0.99) - 14
+        WCNxtTact.Text = Int(((Int(WCTactBonus_TxtBx.Text) + 1) / 0.125) + 0.99)
+        OffDefNxtTact.Text = Int(((Int(OffDefTactBonus_TxtBx.Text) + 1) / 0.375) + 0.99)
 
-            x = x + 1
-        Loop
-
-        wv = ((Math.Floor(Int(Str_Mod_Lbl.Text) / 2) * 0.15) + (Math.Ceiling(Int(Str_Mod_Lbl.Text) / 2) * 0.1))
-
-        wv = wv + CDbl(WWV_TxtBx.Text)
-
-        WV_TxtBx.Text = wv
-
-        'TactBonus_TxtBx.Text = Int(Int(Tactics_Mod_Lbl.Text) * 0.15)
-        'NxtTact.Text = Int(((Int(TactBonus_TxtBx.Text) + 1) / 0.15) + 0.99)
-        ' Calculate tactics 
-        'TactBonus_TxtBx.Text = Int(Int(Tactics_Mod_Lbl.Text) * 0.15)
-        TactBonus_TxtBx.Text = Int(Int(Tactics_Mod_Lbl.Text) / 6.667)
-        'NxtTact.Text = Int(((Int(TactBonus_TxtBx.Text) + 1) / 0.15) + 0.99)
-        NxtTact.Text = Int(((Int(TactBonus_TxtBx.Text) + 1) * 6.667) + 0.99)
-
+        'Determine Highest Weapon Skill
         ws1 = Math.Max(Int(Sword_Mod_Lbl.Text), Int(TwoHand_Mod_Lbl.Text))
         ws2 = Math.Max(Int(Dagger_Mod_Lbl.Text), Int(H2H_Mod_Lbl.Text))
         ws_max = Math.Max(ws1, ws2)
 
-        AAS_VAL = ((Int(Agi_Mod_Lbl.Text) * 2) + Int(Str_Mod_Lbl.Text)) / 5
-
-        RageBonus = Math.Floor(Int(Int(Rage_Mod_Lbl.Text) / 8))
-
-        RageBonus_TxtBx.Text = RageBonus
-        NxtRage.Text = Int((RageBonus + 1) * 8)
-
-        If ShowTact_Chk.Checked = True Then
-            Offense_TxtBx.Text = Int((Int(Attack_Mod_Lbl.Text) * 2) + Int(ws_max))
-            Defense_TxtBx.Text = Int((Int(Parry_Mod_Lbl.Text) * 2) + Int(ws_max)) - CDbl(DefReduct_TxtBx.Text)
-            RawSpeed_TxtBx.Text = Int(Int(AAS_VAL) + Int(((Int(Speed_Mod_Lbl.Text) - Int(TactBonus_TxtBx.Text)) / 2) + Int(Int(TactBonus_TxtBx.Text) / 2))) - CDbl(SpeedReduct_TxtBx.Text)
-
-            RageBonus = Int(Int(Rage_Mod_Lbl.Text) / 8)
-        Else
-            Offense_TxtBx.Text = Int(((Int(Attack_Mod_Lbl.Text) + Int(TactBonus_TxtBx.Text)) * 2) + Int((ws_max + Int(TactBonus_TxtBx.Text))))
-            Defense_TxtBx.Text = Int(((Int(Parry_Mod_Lbl.Text) + Int(TactBonus_TxtBx.Text)) * 2) + Int((ws_max + Int(TactBonus_TxtBx.Text)))) - CDbl(DefReduct_TxtBx.Text)
-            RawSpeed_TxtBx.Text = Int(Int(AAS_VAL) + Int((Int(Speed_Mod_Lbl.Text) / 2) + Int(Int(TactBonus_TxtBx.Text) / 2))) - CDbl(SpeedReduct_TxtBx.Text)
-
-            RageBonus = Int((Int(Rage_Mod_Lbl.Text) + Int(TactBonus_TxtBx.Text)) / 8)
+        If ws_max = Int(Dagger_Mod_Lbl.Text) Then
+            ws_type = 0
+        ElseIf ws_max = Int(H2H_Mod_Lbl.Text) Then
+            ws_type = 1
+        ElseIf ws_max = Int(Sword_Mod_Lbl.Text) Then
+            ws_type = 2
+        ElseIf ws_max = Int(TwoHand_Mod_Lbl.Text) Then
+            ws_type = 3
         End If
 
-        RageBonus_TxtBx.Text = RageBonus
-        NxtRage.Text = Int((RageBonus + 1) * 8)
+        'Calculate Weapon Value
+        If ws_type = 0 Then
+            If Int(Dagger_TxtBx.Text) >= 110 Then
+                wv = 121
+            Else
+                wv = 1 + (Math.Floor(Int(Dagger_TxtBx.Text) / 10 + 1) * 10)
+            End If
+        ElseIf ws_type = 1 Then
+            If Int(Body_Mod_Lbl.Text) >= 180 Then wv = 90 Else wv = Int(Body_Mod_Lbl.Text) * 0.5
+        ElseIf ws_type = 2 Then
+            If Int(Sword_TxtBx.Text) >= 110 Then
+                wv = 124
+            Else
+                wv = 4 + (Math.Floor(Int(Sword_TxtBx.Text) / 10 + 1) * 10)
+            End If
+        ElseIf ws_type = 3 Then
+            If Int(TwoHand_TxtBx.Text) >= 110 Then
+                wv = 127
+            Else
+                wv = 7 + (Math.Floor(Int(TwoHand_TxtBx.Text) / 10 + 1) * 10)
+            End If
+        End If
 
+        WV_TxtBx.Text = Int(wv + Int(Body_Mod_Lbl.Text) * 0.25)
+
+        'Calculate Rage
+        RageBonus_TxtBx.Text = Int(Int(Rage_Mod_Lbl.Text) / 5)
+        NxtRage.Text = Int((Int(RageBonus_TxtBx.Text) + 1) * 5)
+
+        'Offence/Defence Calculations
+        If ShowTact_Chk.Checked = True Then
+            Offense_TxtBx.Text = Int((Int(Attack_Mod_Lbl.Text) * 2) + Int(ws_max)) + Int(OffDefTactBonus_TxtBx.Text)
+            Defense_TxtBx.Text = Int((Int(Parry_Mod_Lbl.Text) * 2) + Int(ws_max)) + Int(OffDefTactBonus_TxtBx.Text)
+        Else
+            Int(OffDefTactBonus_TxtBx.Text)
+            Offense_TxtBx.Text = Int((Int(Attack_Mod_Lbl.Text) * 2) + Int(ws_max))
+            Defense_TxtBx.Text = Int((Int(Parry_Mod_Lbl.Text) * 2) + Int(ws_max))
+        End If
         If ShowRage_Chk.Checked = True Then Offense_TxtBx.Text = Int(Offense_TxtBx.Text) + RageBonus
         If ShowRage_Chk.Checked = True Then Defense_TxtBx.Text = Int(Defense_TxtBx.Text) + RageBonus
+
+        'Speed Calculations
+        RawSpeed_TxtBx.Text = Int((Int(Agi_Mod_Lbl.Text) + Int(Agi_Mod_Lbl.Text) + Int(Str_Mod_Lbl.Text)) / 5) + (Int(Ath_TxtBx.Text) * 3) + Int(Speed_Mod_Lbl.Text / 2)
+
+        'Calculate Warcry
+        If ShowTact_Chk.Checked = True Then
+            WCShield_TxtBx.Text = (Int(Warcry_Mod_Lbl.Text) - Int(WCTactBonus_TxtBx.Text)) / 2
+            WCCost_TxtBx.Text = (Int(Warcry_Mod_Lbl.Text) - Int(WCTactBonus_TxtBx.Text)) / 3
+        Else
+            WCShield_TxtBx.Text = Int(Warcry_Mod_Lbl.Text) / 2
+            WCCost_TxtBx.Text = Int(Warcry_Mod_Lbl.Text) / 3
+        End If
+
+        'Calculate Warcry Duration
+        If Arch_Chk.Checked = True Then Duration = Int(Level_TxtBx.Text) / 2 Else Duration = 0
+        WCDur_TxtBx.Text = Math.Round((4 + (4 * Duration / 35)) * 100) / 100
 
         ValidateData()
 
@@ -525,29 +346,29 @@ Public Class frmWarriorCalc
         If Int(Perc_Mod_TxtBx.Text) > Math.Floor(Int(Perc_TxtBx.Text) / 2) Then Perc_Mod_TxtBx.ForeColor = Color.Red Else Perc_Mod_TxtBx.ForeColor = Color.Black
         If Int(Stealth_Mod_TxtBx.Text) > Math.Floor(Int(Stealth_TxtBx.Text) / 2) Then Stealth_Mod_TxtBx.ForeColor = Color.Red Else Stealth_Mod_TxtBx.ForeColor = Color.Black
         If Int(Regen_Mod_TxtBx.Text) > Math.Floor(Int(Regen_TxtBx.Text) / 2) Then Regen_Mod_TxtBx.ForeColor = Color.Red Else Regen_Mod_TxtBx.ForeColor = Color.Black
+        If Int(Body_Mod_TxtBx.Text) > Math.Floor(Int(Body_TxtBx.Text) / 2) Then Body_Mod_TxtBx.ForeColor = Color.Red Else Body_Mod_TxtBx.ForeColor = Color.Black
         'Whitestar Mod
-        If gLevel > Int(MaxLevel_txtbox.Text) + 1 Then
-            MsgBox("The last stat increase exceeded your MaxLevel Setting")
+        If gLevel > 200 Then
+            MsgBox("The last stat increase exceeded max level.")
         End If
 
 
     End Sub
 
-   
     Private Sub HP_Btn_MouseDown(ByVal sender As System.Object, ByVal e As System.Windows.Forms.MouseEventArgs) Handles HP_Btn.MouseDown
 
         Select Case e.Button
             Case Windows.Forms.MouseButtons.Left
-                If Int(HP_TxtBx.Text) >= Int(MaxBase_txtbox.Text) Then
-                    MsgBox("Cannot raise stats beyond MaxBase, Please Check your MaxBase settings")
+                If Int(HP_TxtBx.Text) >= MaxBase Then
+                    MsgBox("Cannot raise stats beyond MaxBase")
                     Exit Sub
                 End If
 
                 HP_TxtBx.Text = Int(HP_TxtBx.Text) + 1
 
             Case Windows.Forms.MouseButtons.Right
-                If Int(HP_TxtBx.Text) = 25 Then
-                    MsgBox("Can not reduce below 25")
+                If Int(HP_TxtBx.Text) = 10 Then
+                    MsgBox("Can not reduce below 10")
                     Exit Sub
                 End If
 
@@ -556,23 +377,22 @@ Public Class frmWarriorCalc
         End Select
 
         SetExpValues()
-
     End Sub
 
     Private Sub End_Btn_MouseDown(ByVal sender As System.Object, ByVal e As System.Windows.Forms.MouseEventArgs) Handles End_Btn.MouseDown
 
         Select Case e.Button
             Case Windows.Forms.MouseButtons.Left
-                If Int(End_TxtBx.Text) >= Int(MaxBase_txtbox.Text) Then
-                    MsgBox("Cannot raise stats beyond MaxBase, Please Check your MaxBase settings")
+                If Int(End_TxtBx.Text) >= MaxBase Then
+                    MsgBox("Cannot raise stats beyond MaxBase")
                     Exit Sub
                 End If
 
                 End_TxtBx.Text = Int(End_TxtBx.Text) + 1
 
             Case Windows.Forms.MouseButtons.Right
-                If Int(End_TxtBx.Text) = 25 Then
-                    MsgBox("Can not reduce below 25")
+                If Int(End_TxtBx.Text) = 10 Then
+                    MsgBox("Can not reduce below 10")
                     Exit Sub
                 End If
 
@@ -581,15 +401,14 @@ Public Class frmWarriorCalc
         End Select
 
         SetExpValues()
-
     End Sub
 
     Private Sub Wis_Btn_MouseDown(ByVal sender As System.Object, ByVal e As System.Windows.Forms.MouseEventArgs) Handles Wis_Btn.MouseDown
 
         Select Case e.Button
             Case Windows.Forms.MouseButtons.Left
-                If Int(Wis_TxtBx.Text) >= Int(MaxBase_txtbox.Text) Then
-                    MsgBox("Cannot raise stats beyond MaxBase, Please Check your MaxBase settings")
+                If Int(Wis_TxtBx.Text) >= 250 Then
+                    MsgBox("Cannot raise stats beyond MaxBase")
                     Exit Sub
                 End If
 
@@ -613,8 +432,8 @@ Public Class frmWarriorCalc
 
         Select Case e.Button
             Case Windows.Forms.MouseButtons.Left
-                If Int(Int_TxtBx.Text) >= Int(MaxBase_txtbox.Text) Then
-                    MsgBox("Cannot raise stats beyond MaxBase, Please Check your MaxBase settings")
+                If Int(Int_TxtBx.Text) >= 250 Then
+                    MsgBox("Cannot raise stats beyond MaxBase")
                     Exit Sub
                 End If
 
@@ -638,8 +457,8 @@ Public Class frmWarriorCalc
 
         Select Case e.Button
             Case Windows.Forms.MouseButtons.Left
-                If Int(Agi_TxtBx.Text) >= Int(MaxBase_txtbox.Text) Then
-                    MsgBox("Cannot raise stats beyond MaxBase, Please Check your MaxBase settings")
+                If Int(Agi_TxtBx.Text) >= 250 Then
+                    MsgBox("Cannot raise stats beyond MaxBase")
                     Exit Sub
                 End If
 
@@ -663,8 +482,8 @@ Public Class frmWarriorCalc
 
         Select Case e.Button
             Case Windows.Forms.MouseButtons.Left
-                If Int(Str_TxtBx.Text) >= Int(MaxBase_txtbox.Text) Then
-                    MsgBox("Cannot raise stats beyond MaxBase, Please Check your MaxBase settings")
+                If Int(Str_TxtBx.Text) >= 250 Then
+                    MsgBox("Cannot raise stats beyond MaxBase")
                     Exit Sub
                 End If
 
@@ -688,8 +507,8 @@ Public Class frmWarriorCalc
 
         Select Case e.Button
             Case Windows.Forms.MouseButtons.Left
-                If Int(Dagger_TxtBx.Text) >= Int(MaxBase_txtbox.Text) Then
-                    MsgBox("Cannot raise stats beyond MaxBase, Please Check your MaxBase settings")
+                If Int(Dagger_TxtBx.Text) >= 250 Then
+                    MsgBox("Cannot raise stats beyond MaxBase")
                     Exit Sub
                 End If
 
@@ -713,8 +532,8 @@ Public Class frmWarriorCalc
 
         Select Case e.Button
             Case Windows.Forms.MouseButtons.Left
-                If Int(H2H_TxtBx.Text) >= Int(MaxBase_txtbox.Text) Then
-                    MsgBox("Cannot raise stats beyond MaxBase, Please Check your MaxBase settings")
+                If Int(H2H_TxtBx.Text) >= 250 Then
+                    MsgBox("Cannot raise stats beyond MaxBase")
                     Exit Sub
                 End If
 
@@ -738,8 +557,8 @@ Public Class frmWarriorCalc
 
         Select Case e.Button
             Case Windows.Forms.MouseButtons.Left
-                If Int(Sword_TxtBx.Text) >= Int(MaxBase_txtbox.Text) Then
-                    MsgBox("Cannot raise stats beyond MaxBase, Please Check your MaxBase settings")
+                If Int(Sword_TxtBx.Text) >= 250 Then
+                    MsgBox("Cannot raise stats beyond MaxBase")
                     Exit Sub
                 End If
 
@@ -763,8 +582,8 @@ Public Class frmWarriorCalc
 
         Select Case e.Button
             Case Windows.Forms.MouseButtons.Left
-                If Int(TwoHand_TxtBx.Text) >= Int(MaxBase_txtbox.Text) Then
-                    MsgBox("Cannot raise stats beyond MaxBase, Please Check your MaxBase settings")
+                If Int(TwoHand_TxtBx.Text) >= 250 Then
+                    MsgBox("Cannot raise stats beyond MaxBase")
                     Exit Sub
                 End If
 
@@ -788,8 +607,8 @@ Public Class frmWarriorCalc
 
         Select Case e.Button
             Case Windows.Forms.MouseButtons.Left
-                If Int(Rage_TxtBx.Text) >= Int(MaxBase_txtbox.Text) Then
-                    MsgBox("Cannot raise stats beyond MaxBase, Please Check your MaxBase settings")
+                If Int(Rage_TxtBx.Text) >= 250 Then
+                    MsgBox("Cannot raise stats beyond MaxBase")
                     Exit Sub
                 End If
 
@@ -813,8 +632,8 @@ Public Class frmWarriorCalc
 
         Select Case e.Button
             Case Windows.Forms.MouseButtons.Left
-                If Int(Attack_TxtBx.Text) >= Int(MaxBase_txtbox.Text) Then
-                    MsgBox("Cannot raise stats beyond MaxBase, Please Check your MaxBase settings")
+                If Int(Attack_TxtBx.Text) >= 250 Then
+                    MsgBox("Cannot raise stats beyond MaxBase")
                     Exit Sub
                 End If
 
@@ -838,8 +657,8 @@ Public Class frmWarriorCalc
 
         Select Case e.Button
             Case Windows.Forms.MouseButtons.Left
-                If Int(Parry_TxtBx.Text) >= Int(MaxBase_txtbox.Text) Then
-                    MsgBox("Cannot raise stats beyond MaxBase, Please Check your MaxBase settings")
+                If Int(Parry_TxtBx.Text) >= 250 Then
+                    MsgBox("Cannot raise stats beyond MaxBase")
                     Exit Sub
                 End If
 
@@ -863,8 +682,8 @@ Public Class frmWarriorCalc
 
         Select Case e.Button
             Case Windows.Forms.MouseButtons.Left
-                If Int(Tactics_TxtBx.Text) >= Int(MaxBase_txtbox.Text) Then
-                    MsgBox("Cannot raise stats beyond MaxBase, Please Check your MaxBase settings")
+                If Int(Tactics_TxtBx.Text) >= 250 Then
+                    MsgBox("Cannot raise stats beyond MaxBase")
                     Exit Sub
                 End If
 
@@ -888,8 +707,8 @@ Public Class frmWarriorCalc
 
         Select Case e.Button
             Case Windows.Forms.MouseButtons.Left
-                If Int(Warcry_TxtBx.Text) >= Int(MaxBase_txtbox.Text) Then
-                    MsgBox("Cannot raise stats beyond MaxBase, Please Check your MaxBase settings")
+                If Int(Warcry_TxtBx.Text) >= 250 Then
+                    MsgBox("Cannot raise stats beyond MaxBase")
                     Exit Sub
                 End If
 
@@ -913,8 +732,8 @@ Public Class frmWarriorCalc
 
         Select Case e.Button
             Case Windows.Forms.MouseButtons.Left
-                If Int(Surround_TxtBx.Text) >= Int(MaxBase_txtbox.Text) Then
-                    MsgBox("Cannot raise stats beyond MaxBase, Please Check your MaxBase settings")
+                If Int(Surround_TxtBx.Text) >= 250 Then
+                    MsgBox("Cannot raise stats beyond MaxBase")
                     Exit Sub
                 End If
 
@@ -938,8 +757,8 @@ Public Class frmWarriorCalc
 
         Select Case e.Button
             Case Windows.Forms.MouseButtons.Left
-                If Int(Speed_TxtBx.Text) >= Int(MaxBase_txtbox.Text) Then
-                    MsgBox("Cannot raise stats beyond MaxBase, Please Check your MaxBase settings")
+                If Int(Speed_TxtBx.Text) >= 250 Then
+                    MsgBox("Cannot raise stats beyond MaxBase")
                     Exit Sub
                 End If
 
@@ -963,8 +782,8 @@ Public Class frmWarriorCalc
 
         Select Case e.Button
             Case Windows.Forms.MouseButtons.Left
-                If Int(Immunity_TxtBx.Text) >= Int(MaxBase_txtbox.Text) Then
-                    MsgBox("Cannot raise stats beyond MaxBase, Please Check your MaxBase settings")
+                If Int(Immunity_TxtBx.Text) >= 250 Then
+                    MsgBox("Cannot raise stats beyond MaxBase")
                     Exit Sub
                 End If
 
@@ -988,8 +807,8 @@ Public Class frmWarriorCalc
 
         Select Case e.Button
             Case Windows.Forms.MouseButtons.Left
-                If Int(Barter_TxtBx.Text) >= Int(MaxBase_txtbox.Text) Then
-                    MsgBox("Cannot raise stats beyond MaxBase, Please Check your MaxBase settings")
+                If Int(Barter_TxtBx.Text) >= 250 Then
+                    MsgBox("Cannot raise stats beyond MaxBase")
                     Exit Sub
                 End If
 
@@ -1013,8 +832,8 @@ Public Class frmWarriorCalc
 
         Select Case e.Button
             Case Windows.Forms.MouseButtons.Left
-                If Int(Perc_TxtBx.Text) >= Int(MaxBase_txtbox.Text) Then
-                    MsgBox("Cannot raise stats beyond MaxBase, Please Check your MaxBase settings")
+                If Int(Perc_TxtBx.Text) >= 250 Then
+                    MsgBox("Cannot raise stats beyond MaxBase")
                     Exit Sub
                 End If
 
@@ -1038,8 +857,8 @@ Public Class frmWarriorCalc
 
         Select Case e.Button
             Case Windows.Forms.MouseButtons.Left
-                If Int(Stealth_TxtBx.Text) >= Int(MaxBase_txtbox.Text) Then
-                    MsgBox("Cannot raise stats beyond MaxBase, Please Check your MaxBase settings")
+                If Int(Stealth_TxtBx.Text) >= 250 Then
+                    MsgBox("Cannot raise stats beyond MaxBase")
                     Exit Sub
                 End If
 
@@ -1063,8 +882,8 @@ Public Class frmWarriorCalc
 
         Select Case e.Button
             Case Windows.Forms.MouseButtons.Left
-                If Int(Regen_TxtBx.Text) >= Int(MaxBase_txtbox.Text) Then
-                    MsgBox("Cannot raise stats beyond MaxBase, Please Check your MaxBase settings")
+                If Int(Regen_TxtBx.Text) >= 250 Then
+                    MsgBox("Cannot raise stats beyond MaxBase")
                     Exit Sub
                 End If
 
@@ -1084,12 +903,62 @@ Public Class frmWarriorCalc
 
     End Sub
 
+    Private Sub AS_Btn_MouseDown(ByVal sender As System.Object, ByVal e As System.Windows.Forms.MouseEventArgs) Handles AS_Btn.MouseDown
+
+        Select Case e.Button
+            Case Windows.Forms.MouseButtons.Left
+                If Int(AS_TxtBx.Text) >= 250 Then
+                    MsgBox("Cannot raise stats beyond MaxBase")
+                    Exit Sub
+                End If
+
+                AS_TxtBx.Text = Int(AS_TxtBx.Text) + 1
+
+            Case Windows.Forms.MouseButtons.Right
+                If Int(AS_TxtBx.Text) = 1 Then
+                    MsgBox("Can not reduce below 1")
+                    Exit Sub
+                End If
+
+                AS_TxtBx.Text = Int(AS_TxtBx.Text) - 1
+
+        End Select
+
+        SetExpValues()
+
+    End Sub
+
+    Private Sub Body_Btn_MouseDown(ByVal sender As System.Object, ByVal e As System.Windows.Forms.MouseEventArgs) Handles Body_Btn.MouseDown
+
+        Select Case e.Button
+            Case Windows.Forms.MouseButtons.Left
+                If Int(Body_TxtBx.Text) >= 250 Then
+                    MsgBox("Cannot raise stats beyond MaxBase")
+                    Exit Sub
+                End If
+
+                Body_TxtBx.Text = Int(Body_TxtBx.Text) + 1
+
+            Case Windows.Forms.MouseButtons.Right
+                If Int(Body_TxtBx.Text) = 1 Then
+                    MsgBox("Can not reduce below 1")
+                    Exit Sub
+                End If
+
+                Body_TxtBx.Text = Int(Body_TxtBx.Text) - 1
+
+        End Select
+
+        SetExpValues()
+
+    End Sub
+
     Private Sub Prof_Btn_MouseDown(ByVal sender As System.Object, ByVal e As System.Windows.Forms.MouseEventArgs) Handles Prof_Btn.MouseDown
 
         Select Case e.Button
             Case Windows.Forms.MouseButtons.Left
-                If Int(Prof_TxtBx.Text) = 50 Then
-                    MsgBox("Can not raise beyond 50")
+                If Int(Prof_TxtBx.Text) = 100 Then
+                    MsgBox("Can not raise beyond 100")
                     Exit Sub
                 End If
 
@@ -1109,162 +978,270 @@ Public Class frmWarriorCalc
 
     End Sub
 
+    Private Sub LDW_Btn_MouseDown(ByVal sender As System.Object, ByVal e As System.Windows.Forms.MouseEventArgs) Handles LDW_Btn.MouseDown
+        Select Case e.Button
+            Case Windows.Forms.MouseButtons.Left
+                If Int(LDW_TxtBx.Text) >= 30 Then
+                    MsgBox("Cannot raise stats beyond MaxBase")
+                    Exit Sub
+                End If
+
+                If LDW_TxtBx.Text < 6 Then LDW_TxtBx.Text = 6 Else LDW_TxtBx.Text = (Int(LDW_TxtBx.Text / 3) + 1) * 3
+
+            Case Windows.Forms.MouseButtons.Right
+                If Int(LDW_TxtBx.Text) = 0 Then
+                    MsgBox("Can not reduce below 0")
+                    Exit Sub
+                End If
+
+                If LDW_TxtBx.Text <= 6 Then LDW_TxtBx.Text = 0 Else LDW_TxtBx.Text = (Math.Ceiling(LDW_TxtBx.Text / 3) - 1) * 3
+
+        End Select
+
+        SetExpValues()
+    End Sub
+
+    Private Sub CW_Btn_MouseDown(ByVal sender As System.Object, ByVal e As System.Windows.Forms.MouseEventArgs) Handles CW_Btn.MouseDown
+        Select Case e.Button
+            Case Windows.Forms.MouseButtons.Left
+                If Int(CW_TxtBx.Text) >= 30 Then
+                    MsgBox("Cannot raise stats beyond MaxBase")
+                    Exit Sub
+                End If
+
+                If CW_TxtBx.Text < 6 Then CW_TxtBx.Text = 6 Else CW_TxtBx.Text = (Int(CW_TxtBx.Text / 3) + 1) * 3
+
+            Case Windows.Forms.MouseButtons.Right
+                If Int(CW_TxtBx.Text) = 0 Then
+                    MsgBox("Can not reduce below 0")
+                    Exit Sub
+                End If
+
+                If CW_TxtBx.Text <= 6 Then CW_TxtBx.Text = 0 Else CW_TxtBx.Text = (Math.Ceiling(CW_TxtBx.Text / 3) - 1) * 3
+
+        End Select
+
+        SetExpValues()
+    End Sub
+
+    Private Sub Ath_Btn_MouseDown(ByVal sender As System.Object, ByVal e As System.Windows.Forms.MouseEventArgs) Handles Ath_Btn.MouseDown
+        Select Case e.Button
+            Case Windows.Forms.MouseButtons.Left
+                If Int(Ath_TxtBx.Text) >= 30 Then
+                    MsgBox("Cannot raise stats beyond MaxBase")
+                    Exit Sub
+                End If
+
+                If Ath_TxtBx.Text < 6 Then Ath_TxtBx.Text = 6 Else Ath_TxtBx.Text = (Int(Ath_TxtBx.Text / 3) + 1) * 3
+
+            Case Windows.Forms.MouseButtons.Right
+                If Int(Ath_TxtBx.Text) = 0 Then
+                    MsgBox("Can not reduce below 0")
+                    Exit Sub
+                End If
+
+                If Ath_TxtBx.Text <= 6 Then Ath_TxtBx.Text = 0 Else Ath_TxtBx.Text = (Math.Ceiling(Ath_TxtBx.Text / 3) - 1) * 3
+
+        End Select
+
+        SetExpValues()
+    End Sub
+
+    Private Sub Thief_Btn_MouseDown(ByVal sender As System.Object, ByVal e As System.Windows.Forms.MouseEventArgs) Handles Thief_Btn.MouseDown
+        Select Case e.Button
+            Case Windows.Forms.MouseButtons.Left
+                If Int(Thief_TxtBx.Text) >= 30 Then
+                    MsgBox("Cannot raise stats beyond MaxBase")
+                    Exit Sub
+                End If
+
+                If Thief_TxtBx.Text < 6 Then Thief_TxtBx.Text = 6 Else Thief_TxtBx.Text = (Int(Thief_TxtBx.Text / 3) + 1) * 3
+
+            Case Windows.Forms.MouseButtons.Right
+                If Int(Thief_TxtBx.Text) = 0 Then
+                    MsgBox("Can not reduce below 0")
+                    Exit Sub
+                End If
+
+                If Thief_TxtBx.Text <= 6 Then Thief_TxtBx.Text = 0 Else Thief_TxtBx.Text = (Math.Ceiling(Thief_TxtBx.Text / 3) - 1) * 3
+
+        End Select
+
+        SetExpValues()
+    End Sub
+
     Private Sub HP_TxtBx_Leave(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles HP_TxtBx.Leave
-        If Int(HP_TxtBx.Text) > Int(MaxBase_txtbox.Text) Then HP_TxtBx.Text = Int(MaxBase_txtbox.Text)
-        If Int(HP_TxtBx.Text) < 25 Then HP_TxtBx.Text = 25
+
+        If Int(HP_TxtBx.Text) > MaxBase Then HP_TxtBx.Text = MaxBase
+        If Int(HP_TxtBx.Text) < 10 Then HP_TxtBx.Text = 10
 
         SetExpValues()
     End Sub
 
     Private Sub End_TxtBx_Leave(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles End_TxtBx.Leave
-        If Int(End_TxtBx.Text) > Int(MaxBase_txtbox.Text) Then End_TxtBx.Text = Int(MaxBase_txtbox.Text)
-        If Int(End_TxtBx.Text) < 25 Then End_TxtBx.Text = 25
+
+        If Int(End_TxtBx.Text) > MaxBase Then End_TxtBx.Text = MaxBase
+        If Int(End_TxtBx.Text) < 10 Then End_TxtBx.Text = 10
 
         SetExpValues()
     End Sub
 
     Private Sub Wis_TxtBx_Leave(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles Wis_TxtBx.Leave
-        If Int(Wis_TxtBx.Text) > Int(MaxBase_txtbox.Text) Then Wis_TxtBx.Text = Int(MaxBase_txtbox.Text)
+        If Int(Wis_TxtBx.Text) > 250 Then Wis_TxtBx.Text = 250
         If Int(Wis_TxtBx.Text) < 10 Then Wis_TxtBx.Text = 10
 
         SetExpValues()
     End Sub
 
     Private Sub Int_TxtBx_Leave(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles Int_TxtBx.Leave
-        If Int(Int_TxtBx.Text) > Int(MaxBase_txtbox.Text) Then Int_TxtBx.Text = Int(MaxBase_txtbox.Text)
+        If Int(Int_TxtBx.Text) > 250 Then Int_TxtBx.Text = 250
         If Int(Int_TxtBx.Text) < 10 Then Int_TxtBx.Text = 10
 
         SetExpValues()
     End Sub
 
     Private Sub Agi_TxtBx_Leave(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles Agi_TxtBx.Leave
-        If Int(Agi_TxtBx.Text) > Int(MaxBase_txtbox.Text) Then Agi_TxtBx.Text = Int(MaxBase_txtbox.Text)
+        If Int(Agi_TxtBx.Text) > 250 Then Agi_TxtBx.Text = 250
         If Int(Agi_TxtBx.Text) < 10 Then Agi_TxtBx.Text = 10
 
         SetExpValues()
     End Sub
 
     Private Sub Str_TxtBx_Leave(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles Str_TxtBx.Leave
-        If Int(Str_TxtBx.Text) > Int(MaxBase_txtbox.Text) Then Str_TxtBx.Text = Int(MaxBase_txtbox.Text)
+        If Int(Str_TxtBx.Text) > 250 Then Str_TxtBx.Text = 250
         If Int(Str_TxtBx.Text) < 10 Then Str_TxtBx.Text = 10
 
         SetExpValues()
     End Sub
 
     Private Sub Dagger_TxtBx_Leave(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles Dagger_TxtBx.Leave
-        If Int(Dagger_TxtBx.Text) > Int(MaxBase_txtbox.Text) Then Dagger_TxtBx.Text = Int(MaxBase_txtbox.Text)
+        If Int(Dagger_TxtBx.Text) > 250 Then Dagger_TxtBx.Text = 250
         If Int(Dagger_TxtBx.Text) < 1 Then Dagger_TxtBx.Text = 1
 
         SetExpValues()
     End Sub
 
     Private Sub H2H_TxtBx_Leave(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles H2H_TxtBx.Leave
-        If Int(H2H_TxtBx.Text) > Int(MaxBase_txtbox.Text) Then H2H_TxtBx.Text = Int(MaxBase_txtbox.Text)
+        If Int(H2H_TxtBx.Text) > 250 Then H2H_TxtBx.Text = 250
         If Int(H2H_TxtBx.Text) < 1 Then H2H_TxtBx.Text = 1
 
         SetExpValues()
     End Sub
 
     Private Sub Sword_TxtBx_Leave(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles Sword_TxtBx.Leave
-        If Int(Sword_TxtBx.Text) > Int(MaxBase_txtbox.Text) Then Sword_TxtBx.Text = Int(MaxBase_txtbox.Text)
+        If Int(Sword_TxtBx.Text) > 250 Then Sword_TxtBx.Text = 250
         If Int(Sword_TxtBx.Text) < 1 Then Sword_TxtBx.Text = 1
 
         SetExpValues()
     End Sub
 
     Private Sub TwoHand_TxtBx_Leave(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles TwoHand_TxtBx.Leave
-        If Int(TwoHand_TxtBx.Text) > Int(MaxBase_txtbox.Text) Then TwoHand_TxtBx.Text = Int(MaxBase_txtbox.Text)
+        If Int(TwoHand_TxtBx.Text) > 250 Then TwoHand_TxtBx.Text = 250
         If Int(TwoHand_TxtBx.Text) < 1 Then TwoHand_TxtBx.Text = 1
 
         SetExpValues()
     End Sub
 
     Private Sub Rage_TxtBx_Leave(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles Rage_TxtBx.Leave
-        If Int(Rage_TxtBx.Text) > Int(MaxBase_txtbox.Text) Then Rage_TxtBx.Text = Int(MaxBase_txtbox.Text)
+        If Int(Rage_TxtBx.Text) > 250 Then Rage_TxtBx.Text = 250
         If Int(Rage_TxtBx.Text) < 1 Then Rage_TxtBx.Text = 1
 
         SetExpValues()
     End Sub
 
     Private Sub Attack_TxtBx_Leave(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles Attack_TxtBx.Leave
-        If Int(Attack_TxtBx.Text) > Int(MaxBase_txtbox.Text) Then Attack_TxtBx.Text = Int(MaxBase_txtbox.Text)
+        If Int(Attack_TxtBx.Text) > 250 Then Attack_TxtBx.Text = 250
         If Int(Attack_TxtBx.Text) < 1 Then Attack_TxtBx.Text = 1
 
         SetExpValues()
     End Sub
 
     Private Sub Parry_TxtBx_Leave(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles Parry_TxtBx.Leave
-        If Int(Parry_TxtBx.Text) > Int(MaxBase_txtbox.Text) Then Parry_TxtBx.Text = Int(MaxBase_txtbox.Text)
+        If Int(Parry_TxtBx.Text) > 250 Then Parry_TxtBx.Text = 250
         If Int(Parry_TxtBx.Text) < 1 Then Parry_TxtBx.Text = 1
 
         SetExpValues()
     End Sub
 
     Private Sub Tactics_TxtBx_Leave(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles Tactics_TxtBx.Leave
-        If Int(Tactics_TxtBx.Text) > Int(MaxBase_txtbox.Text) Then Tactics_TxtBx.Text = Int(MaxBase_txtbox.Text)
+        If Int(Tactics_TxtBx.Text) > 250 Then Tactics_TxtBx.Text = 250
         If Int(Tactics_TxtBx.Text) < 1 Then Tactics_TxtBx.Text = 1
 
         SetExpValues()
     End Sub
 
     Private Sub Warcry_TxtBx_Leave(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles Warcry_TxtBx.Leave
-        If Int(Warcry_TxtBx.Text) > Int(MaxBase_txtbox.Text) Then Warcry_TxtBx.Text = Int(MaxBase_txtbox.Text)
+        If Int(Warcry_TxtBx.Text) > 250 Then Warcry_TxtBx.Text = 250
         If Int(Warcry_TxtBx.Text) < 1 Then Warcry_TxtBx.Text = 1
 
         SetExpValues()
     End Sub
 
     Private Sub Surround_TxtBx_Leave(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles Surround_TxtBx.Leave
-        If Int(Surround_TxtBx.Text) > Int(MaxBase_txtbox.Text) Then Surround_TxtBx.Text = Int(MaxBase_txtbox.Text)
+        If Int(Surround_TxtBx.Text) > 250 Then Surround_TxtBx.Text = 250
         If Int(Surround_TxtBx.Text) < 1 Then Surround_TxtBx.Text = 1
 
         SetExpValues()
     End Sub
 
     Private Sub Speed_TxtBx_Leave(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles Speed_TxtBx.Leave
-        If Int(Speed_TxtBx.Text) > Int(MaxBase_txtbox.Text) Then Speed_TxtBx.Text = Int(MaxBase_txtbox.Text)
+        If Int(Speed_TxtBx.Text) > 250 Then Speed_TxtBx.Text = 250
         If Int(Speed_TxtBx.Text) < 1 Then Speed_TxtBx.Text = 1
 
         SetExpValues()
     End Sub
 
     Private Sub Immunity_TxtBx_Leave(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles Immunity_TxtBx.Leave
-        If Int(Immunity_TxtBx.Text) > Int(MaxBase_txtbox.Text) Then Immunity_TxtBx.Text = Int(MaxBase_txtbox.Text)
+        If Int(Immunity_TxtBx.Text) > 250 Then Immunity_TxtBx.Text = 250
         If Int(Immunity_TxtBx.Text) < 1 Then Immunity_TxtBx.Text = 1
 
         SetExpValues()
     End Sub
 
     Private Sub Barter_TxtBx_Leave(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles Barter_TxtBx.Leave
-        If Int(Barter_TxtBx.Text) > Int(MaxBase_txtbox.Text) Then Barter_TxtBx.Text = Int(MaxBase_txtbox.Text)
+        If Int(Barter_TxtBx.Text) > 250 Then Barter_TxtBx.Text = 250
         If Int(Barter_TxtBx.Text) < 1 Then Barter_TxtBx.Text = 1
 
         SetExpValues()
     End Sub
 
     Private Sub Perc_TxtBx_Leave(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles Perc_TxtBx.Leave
-        If Int(Perc_TxtBx.Text) > Int(MaxBase_txtbox.Text) Then Perc_TxtBx.Text = Int(MaxBase_txtbox.Text)
+        If Int(Perc_TxtBx.Text) > 250 Then Perc_TxtBx.Text = 250
         If Int(Perc_TxtBx.Text) < 1 Then Perc_TxtBx.Text = 1
 
         SetExpValues()
     End Sub
 
     Private Sub Stealth_TxtBx_Leave(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles Stealth_TxtBx.Leave
-        If Int(Stealth_TxtBx.Text) > Int(MaxBase_txtbox.Text) Then Stealth_TxtBx.Text = Int(MaxBase_txtbox.Text)
+        If Int(Stealth_TxtBx.Text) > 250 Then Stealth_TxtBx.Text = 250
         If Int(Stealth_TxtBx.Text) < 1 Then Stealth_TxtBx.Text = 1
 
         SetExpValues()
     End Sub
 
     Private Sub Regen_TxtBx_Leave(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles Regen_TxtBx.Leave
-        If Int(Regen_TxtBx.Text) > Int(MaxBase_txtbox.Text) Then Regen_TxtBx.Text = Int(MaxBase_txtbox.Text)
+        If Int(Regen_TxtBx.Text) > 250 Then Regen_TxtBx.Text = 250
         If Int(Regen_TxtBx.Text) < 1 Then Regen_TxtBx.Text = 1
 
         SetExpValues()
     End Sub
 
+    Private Sub AS_TxtBx_Leave(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles AS_TxtBx.Leave
+        If Int(AS_TxtBx.Text) > 250 Then AS_TxtBx.Text = 250
+        If Int(AS_TxtBx.Text) < 1 Then AS_TxtBx.Text = 1
+
+        SetExpValues()
+    End Sub
+
+    Private Sub Body_TxtBx_Leave(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles Body_TxtBx.Leave
+        If Int(Body_TxtBx.Text) > 250 Then Body_TxtBx.Text = 250
+        If Int(Body_TxtBx.Text) < 1 Then Body_TxtBx.Text = 1
+
+        SetExpValues()
+    End Sub
+
     Private Sub Prof_TxtBx_Leave(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles Prof_TxtBx.Leave
-        If Int(Prof_TxtBx.Text) > 50 Then Prof_TxtBx.Text = 50
+        If Int(Prof_TxtBx.Text) > 100 Then Prof_TxtBx.Text = 100
         If Int(Prof_TxtBx.Text) < 1 Then Prof_TxtBx.Text = 1
 
         SetExpValues()
@@ -1402,64 +1379,62 @@ Public Class frmWarriorCalc
         SetExpValues()
     End Sub
 
-    Private Sub WWV_TxtBx_Leave(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles WWV_TxtBx.Leave
+    Private Sub Body_Mod_TxtBx_Leave(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles Body_Mod_TxtBx.Leave
+        If Int(Body_Mod_TxtBx.Text) > Math.Floor(Int(Body_TxtBx.Text) / 2) Then Body_Mod_TxtBx.ForeColor = Color.Red Else Body_Mod_TxtBx.ForeColor = Color.Black
+
         SetExpValues()
     End Sub
 
-    Private Sub DefReduct_TxtBx_Leave(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles DefReduct_TxtBx.Leave
+    Private Sub LDW_TxtBx_Leave(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles LDW_TxtBx.Leave
+        If Int(LDW_TxtBx.Text) > 30 Then LDW_TxtBx.Text = 30
+        If Int(LDW_TxtBx.Text) < 0 Then LDW_TxtBx.Text = 0
+
         SetExpValues()
     End Sub
 
-    Private Sub SpeedReduct_TxtBx_Leave(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles SpeedReduct_TxtBx.Leave
+    Private Sub CW_TxtBx_Leave(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles CW_TxtBx.Leave
+        If Int(CW_TxtBx.Text) > 30 Then CW_TxtBx.Text = 30
+        If Int(CW_TxtBx.Text) < 0 Then CW_TxtBx.Text = 0
+
         SetExpValues()
     End Sub
 
-    Private Sub ShowTact_Chk_CheckedChanged(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles ShowTact_Chk.CheckedChanged
-        Select Case ShowTact_Chk.Checked
-            Case True
-                Dagger_Mod_Lbl.Text = Int(Dagger_Mod_Lbl.Text) + Int(TactBonus_TxtBx.Text)
-                H2H_Mod_Lbl.Text = Int(H2H_Mod_Lbl.Text) + Int(TactBonus_TxtBx.Text)
-                Sword_Mod_Lbl.Text = Int(Sword_Mod_Lbl.Text) + Int(TactBonus_TxtBx.Text)
-                TwoHand_Mod_Lbl.Text = Int(TwoHand_Mod_Lbl.Text) + Int(TactBonus_TxtBx.Text)
-                Rage_Mod_Lbl.Text = Int(Rage_Mod_Lbl.Text) + Int(TactBonus_TxtBx.Text)
-                Attack_Mod_Lbl.Text = Int(Attack_Mod_Lbl.Text) + Int(TactBonus_TxtBx.Text)
-                Parry_Mod_Lbl.Text = Int(Parry_Mod_Lbl.Text) + Int(TactBonus_TxtBx.Text)
-                Warcry_Mod_Lbl.Text = Int(Warcry_Mod_Lbl.Text) + Int(TactBonus_TxtBx.Text)
-                Surround_Mod_Lbl.Text = Int(Surround_Mod_Lbl.Text) + Int(TactBonus_TxtBx.Text)
-                Speed_Mod_Lbl.Text = Int(Speed_Mod_Lbl.Text) + Int(TactBonus_TxtBx.Text)
-                Immunity_Mod_Lbl.Text = Int(Immunity_Mod_Lbl.Text) + Int(TactBonus_TxtBx.Text)
-                Barter_Mod_Lbl.Text = Int(Barter_Mod_Lbl.Text) + Int(TactBonus_TxtBx.Text)
-                Perc_Mod_Lbl.Text = Int(Perc_Mod_Lbl.Text) + Int(TactBonus_TxtBx.Text)
-                Stealth_Mod_Lbl.Text = Int(Stealth_Mod_Lbl.Text) + Int(TactBonus_TxtBx.Text)
-                Regen_Mod_Lbl.Text = Int(Regen_Mod_Lbl.Text) + Int(TactBonus_TxtBx.Text)
-            Case False
-                Dagger_Mod_Lbl.Text = Int(Dagger_Mod_Lbl.Text) - Int(TactBonus_TxtBx.Text)
-                H2H_Mod_Lbl.Text = Int(H2H_Mod_Lbl.Text) - Int(TactBonus_TxtBx.Text)
-                Sword_Mod_Lbl.Text = Int(Sword_Mod_Lbl.Text) - Int(TactBonus_TxtBx.Text)
-                TwoHand_Mod_Lbl.Text = Int(TwoHand_Mod_Lbl.Text) - Int(TactBonus_TxtBx.Text)
-                Rage_Mod_Lbl.Text = Int(Rage_Mod_Lbl.Text) - Int(TactBonus_TxtBx.Text)
-                Attack_Mod_Lbl.Text = Int(Attack_Mod_Lbl.Text) - Int(TactBonus_TxtBx.Text)
-                Parry_Mod_Lbl.Text = Int(Parry_Mod_Lbl.Text) - Int(TactBonus_TxtBx.Text)
-                Warcry_Mod_Lbl.Text = Int(Warcry_Mod_Lbl.Text) - Int(TactBonus_TxtBx.Text)
-                Surround_Mod_Lbl.Text = Int(Surround_Mod_Lbl.Text) - Int(TactBonus_TxtBx.Text)
-                Speed_Mod_Lbl.Text = Int(Speed_Mod_Lbl.Text) - Int(TactBonus_TxtBx.Text)
-                Immunity_Mod_Lbl.Text = Int(Immunity_Mod_Lbl.Text) - Int(TactBonus_TxtBx.Text)
-                Barter_Mod_Lbl.Text = Int(Barter_Mod_Lbl.Text) - Int(TactBonus_TxtBx.Text)
-                Perc_Mod_Lbl.Text = Int(Perc_Mod_Lbl.Text) - Int(TactBonus_TxtBx.Text)
-                Stealth_Mod_Lbl.Text = Int(Stealth_Mod_Lbl.Text) - Int(TactBonus_TxtBx.Text)
-                Regen_Mod_Lbl.Text = Int(Regen_Mod_Lbl.Text) - Int(TactBonus_TxtBx.Text)
-        End Select
+    Private Sub Ath_TxtBx_Leave(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles Ath_TxtBx.Leave
+        If Int(Ath_TxtBx.Text) > 30 Then Ath_TxtBx.Text = 30
+        If Int(Ath_TxtBx.Text) < 0 Then Ath_TxtBx.Text = 0
+
+        SetExpValues()
+    End Sub
+
+    Private Sub Thief_TxtBx_Leave(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles Thief_TxtBx.Leave
+        If Int(Thief_TxtBx.Text) > 30 Then Thief_TxtBx.Text = 30
+        If Int(Thief_TxtBx.Text) < 0 Then Thief_TxtBx.Text = 0
+
+        SetExpValues()
+    End Sub
+
+    Private Sub Hardcore_Chk_CheckedChanged(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles Hardcore_Chk.CheckedChanged
+        If Hardcore_Chk.Checked = False And Int(HP_TxtBx.Text) > 115 Then HP_TxtBx.Text = 115
+        If Hardcore_Chk.Checked = False And Int(End_TxtBx.Text) > 115 Then End_TxtBx.Text = 115
+        SetExpValues()
+    End Sub
+
+    Private Sub Max_Bless_Chk_CheckedChanged(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles Max_Bless_Chk.CheckedChanged
 
         SetExpValues()
     End Sub
 
     Private Sub ShowRage_Chk_CheckedChanged(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles ShowRage_Chk.CheckedChanged
-        Select Case ShowRage_Chk.Checked
-            Case True
-                Immunity_Mod_Lbl.Text = Int(Immunity_Mod_Lbl.Text) + Int(RageBonus_TxtBx.Text)
-            Case False
-                Immunity_Mod_Lbl.Text = Int(Immunity_Mod_Lbl.Text) - Int(RageBonus_TxtBx.Text)
-        End Select
+
+        SetExpValues()
+    End Sub
+
+    Private Sub ShowTact_Chk_CheckedChanged(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles ShowTact_Chk.CheckedChanged
+
+        SetExpValues()
+    End Sub
+
+    Private Sub Arch_Chk_CheckedChanged(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles Arch_Chk.CheckedChanged
 
         SetExpValues()
     End Sub
@@ -1467,10 +1442,13 @@ Public Class frmWarriorCalc
     Private Sub Save_Btn_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles Save_Btn.Click
         Dim sFD As New SaveFileDialog
 
-        sFD.Filter = "Text File|*.txt"
+        sFD.Filter = "Warrior File|*.war"
+        sFD.FileName = FileName
         sFD.ShowDialog()
 
         If sFD.FileName = "" Then MsgBox("File not saved, Invalid file name.") : Exit Sub
+
+        FileName = System.IO.Path.GetFileName(sFD.FileName)
 
         Using sw As StreamWriter = File.CreateText(sFD.FileName)
             sw.WriteLine(HP_TxtBx.Text)
@@ -1484,18 +1462,24 @@ Public Class frmWarriorCalc
             sw.WriteLine(Sword_TxtBx.Text)
             sw.WriteLine(TwoHand_TxtBx.Text)
             sw.WriteLine(Rage_TxtBx.Text)
+            sw.WriteLine(AS_TxtBx.Text)
             sw.WriteLine(Attack_TxtBx.Text)
             sw.WriteLine(Parry_TxtBx.Text)
             sw.WriteLine(Tactics_TxtBx.Text)
             sw.WriteLine(Warcry_TxtBx.Text)
             sw.WriteLine(Surround_TxtBx.Text)
+            sw.WriteLine(Body_TxtBx.Text)
             sw.WriteLine(Speed_TxtBx.Text)
-            sw.WriteLine(Immunity_TxtBx.Text)
             sw.WriteLine(Barter_TxtBx.Text)
             sw.WriteLine(Perc_TxtBx.Text)
             sw.WriteLine(Stealth_TxtBx.Text)
             sw.WriteLine(Regen_TxtBx.Text)
+            sw.WriteLine(Immunity_TxtBx.Text)
             sw.WriteLine(Prof_TxtBx.Text)
+            sw.WriteLine(LDW_TxtBx.Text)
+            sw.WriteLine(CW_TxtBx.Text)
+            sw.WriteLine(Ath_TxtBx.Text)
+            sw.WriteLine(Thief_TxtBx.Text)
             sw.WriteLine(HP_Mod_TxtBx.Text)
             sw.WriteLine(End_Mod_TxtBx.Text)
             sw.WriteLine(Wis_Mod_TxtBx.Text)
@@ -1512,85 +1496,188 @@ Public Class frmWarriorCalc
             sw.WriteLine(Tactics_Mod_TxtBx.Text)
             sw.WriteLine(Warcry_Mod_TxtBx.Text)
             sw.WriteLine(Surround_Mod_TxtBx.Text)
+            sw.WriteLine(Body_Mod_TxtBx.Text)
             sw.WriteLine(Speed_Mod_TxtBx.Text)
-            sw.WriteLine(Immunity_Mod_TxtBx.Text)
             sw.WriteLine(Barter_Mod_TxtBx.Text)
             sw.WriteLine(Perc_Mod_TxtBx.Text)
             sw.WriteLine(Stealth_Mod_TxtBx.Text)
             sw.WriteLine(Regen_Mod_TxtBx.Text)
-            sw.WriteLine(WWV_TxtBx.Text)
-            sw.WriteLine(DefReduct_TxtBx.Text)
-            sw.WriteLine(SpeedReduct_TxtBx.Text)
+            sw.WriteLine(Immunity_Mod_TxtBx.Text)
+            sw.WriteLine(ShowTact_Chk.Checked)
+            sw.WriteLine(ShowRage_Chk.Checked)
+            sw.WriteLine(Hardcore_Chk.Checked)
+            sw.WriteLine(Max_Bless_Chk.Checked)
+            sw.WriteLine(Arch_Chk.Checked)
             sw.Close()
         End Using
 
     End Sub
 
-    Private Sub Load_Btn_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles Load_Btn.Click
+    Private Sub Load_Btn_Click(ByVal sender As System.Object, ByVal e As System.Windows.Forms.MouseEventArgs) Handles Load_Btn.MouseUp
         Dim oFD As New OpenFileDialog
 
-        oFD.Filter = "Text File|*.txt"
-        oFD.ShowDialog()
+        Select Case e.Button
+            Case Windows.Forms.MouseButtons.Left
 
-        If oFD.FileName = "" Then MsgBox("File not Loaded, Invalid File Name") : Exit Sub
+                oFD.Filter = "Warrior File|*.war"
+                oFD.ShowDialog()
 
-        Using sr As StreamReader = File.OpenText(oFD.FileName)
-            HP_TxtBx.Text = sr.ReadLine()
-            End_TxtBx.Text = sr.ReadLine()
-            Wis_TxtBx.Text = sr.ReadLine()
-            Int_TxtBx.Text = sr.ReadLine()
-            Agi_TxtBx.Text = sr.ReadLine()
-            Str_TxtBx.Text = sr.ReadLine()
-            Dagger_TxtBx.Text = sr.ReadLine()
-            H2H_TxtBx.Text = sr.ReadLine()
-            Sword_TxtBx.Text = sr.ReadLine()
-            TwoHand_TxtBx.Text = sr.ReadLine()
-            Rage_TxtBx.Text = sr.ReadLine()
-            Attack_TxtBx.Text = sr.ReadLine()
-            Parry_TxtBx.Text = sr.ReadLine()
-            Tactics_TxtBx.Text = sr.ReadLine()
-            Warcry_TxtBx.Text = sr.ReadLine()
-            Surround_TxtBx.Text = sr.ReadLine()
-            Speed_TxtBx.Text = sr.ReadLine()
-            Immunity_TxtBx.Text = sr.ReadLine()
-            Barter_TxtBx.Text = sr.ReadLine()
-            Perc_TxtBx.Text = sr.ReadLine()
-            Stealth_TxtBx.Text = sr.ReadLine()
-            Regen_TxtBx.Text = sr.ReadLine()
-            Prof_TxtBx.Text = sr.ReadLine()
-            HP_Mod_TxtBx.Text = sr.ReadLine()
-            End_Mod_TxtBx.Text = sr.ReadLine()
-            Wis_Mod_TxtBx.Text = sr.ReadLine()
-            Int_Mod_TxtBx.Text = sr.ReadLine()
-            Agi_Mod_TxtBx.Text = sr.ReadLine()
-            Str_Mod_TxtBx.Text = sr.ReadLine()
-            Dagger_Mod_TxtBx.Text = sr.ReadLine()
-            H2H_Mod_TxtBx.Text = sr.ReadLine()
-            Sword_Mod_TxtBx.Text = sr.ReadLine()
-            TwoHand_Mod_TxtBx.Text = sr.ReadLine()
-            Rage_Mod_TxtBx.Text = sr.ReadLine()
-            Attack_Mod_TxtBx.Text = sr.ReadLine()
-            Parry_Mod_TxtBx.Text = sr.ReadLine()
-            Tactics_Mod_TxtBx.Text = sr.ReadLine()
-            Warcry_Mod_TxtBx.Text = sr.ReadLine()
-            Surround_Mod_TxtBx.Text = sr.ReadLine()
-            Speed_Mod_TxtBx.Text = sr.ReadLine()
-            Immunity_Mod_TxtBx.Text = sr.ReadLine()
-            Barter_Mod_TxtBx.Text = sr.ReadLine()
-            Perc_Mod_TxtBx.Text = sr.ReadLine()
-            Stealth_Mod_TxtBx.Text = sr.ReadLine()
-            Regen_Mod_TxtBx.Text = sr.ReadLine()
-            WWV_TxtBx.Text = sr.ReadLine()
-            DefReduct_TxtBx.Text = sr.ReadLine()
-            SpeedReduct_TxtBx.Text = sr.ReadLine()
-            sr.Close()
-        End Using
+                If oFD.FileName = "" Then MsgBox("File not Loaded, Invalid File Name") : Exit Sub
+
+                FileName = System.IO.Path.GetFileName(oFD.FileName)
+
+                Using sr As StreamReader = File.OpenText(oFD.FileName)
+                    HP_TxtBx.Text = sr.ReadLine()
+                    End_TxtBx.Text = sr.ReadLine()
+                    Wis_TxtBx.Text = sr.ReadLine()
+                    Int_TxtBx.Text = sr.ReadLine()
+                    Agi_TxtBx.Text = sr.ReadLine()
+                    Str_TxtBx.Text = sr.ReadLine()
+                    Dagger_TxtBx.Text = sr.ReadLine()
+                    H2H_TxtBx.Text = sr.ReadLine()
+                    Sword_TxtBx.Text = sr.ReadLine()
+                    TwoHand_TxtBx.Text = sr.ReadLine()
+                    Rage_TxtBx.Text = sr.ReadLine()
+                    AS_TxtBx.Text = sr.ReadLine()
+                    Attack_TxtBx.Text = sr.ReadLine()
+                    Parry_TxtBx.Text = sr.ReadLine()
+                    Tactics_TxtBx.Text = sr.ReadLine()
+                    Warcry_TxtBx.Text = sr.ReadLine()
+                    Surround_TxtBx.Text = sr.ReadLine()
+                    Body_TxtBx.Text = sr.ReadLine()
+                    Speed_TxtBx.Text = sr.ReadLine()
+                    Immunity_TxtBx.Text = sr.ReadLine()
+                    Barter_TxtBx.Text = sr.ReadLine()
+                    Perc_TxtBx.Text = sr.ReadLine()
+                    Stealth_TxtBx.Text = sr.ReadLine()
+                    Regen_TxtBx.Text = sr.ReadLine()
+                    Prof_TxtBx.Text = sr.ReadLine()
+                    LDW_TxtBx.Text = sr.ReadLine()
+                    CW_TxtBx.Text = sr.ReadLine()
+                    Ath_TxtBx.Text = sr.ReadLine()
+                    Thief_TxtBx.Text = sr.ReadLine()
+                    HP_Mod_TxtBx.Text = sr.ReadLine()
+                    End_Mod_TxtBx.Text = sr.ReadLine()
+                    Wis_Mod_TxtBx.Text = sr.ReadLine()
+                    Int_Mod_TxtBx.Text = sr.ReadLine()
+                    Agi_Mod_TxtBx.Text = sr.ReadLine()
+                    Str_Mod_TxtBx.Text = sr.ReadLine()
+                    Dagger_Mod_TxtBx.Text = sr.ReadLine()
+                    H2H_Mod_TxtBx.Text = sr.ReadLine()
+                    Sword_Mod_TxtBx.Text = sr.ReadLine()
+                    TwoHand_Mod_TxtBx.Text = sr.ReadLine()
+                    Rage_Mod_TxtBx.Text = sr.ReadLine()
+                    Attack_Mod_TxtBx.Text = sr.ReadLine()
+                    Parry_Mod_TxtBx.Text = sr.ReadLine()
+                    Tactics_Mod_TxtBx.Text = sr.ReadLine()
+                    Warcry_Mod_TxtBx.Text = sr.ReadLine()
+                    Surround_Mod_TxtBx.Text = sr.ReadLine()
+                    Body_Mod_TxtBx.Text = sr.ReadLine()
+                    Speed_Mod_TxtBx.Text = sr.ReadLine()
+                    Barter_Mod_TxtBx.Text = sr.ReadLine()
+                    Perc_Mod_TxtBx.Text = sr.ReadLine()
+                    Stealth_Mod_TxtBx.Text = sr.ReadLine()
+                    Regen_Mod_TxtBx.Text = sr.ReadLine()
+                    Immunity_Mod_TxtBx.Text = sr.ReadLine()
+                    ShowTact_Chk.Checked = sr.ReadLine()
+                    ShowRage_Chk.Checked = sr.ReadLine()
+                    Hardcore_Chk.Checked = sr.ReadLine()
+                    Max_Bless_Chk.Checked = sr.ReadLine()
+                    Arch_Chk.Checked = sr.ReadLine()
+                    sr.Close()
+                End Using
+            Case Windows.Forms.MouseButtons.Right
+                oFD.Filter = "Widget Stat Calc file|*"
+                oFD.ShowDialog()
+
+                If oFD.FileName = "" Then MsgBox("File not Loaded, Invalid File Name") : Exit Sub
+
+                FileName = System.IO.Path.GetFileName(oFD.FileName)
+
+                Using sr As StreamReader = File.OpenText(oFD.FileName)
+                    sr.ReadLine()
+                    Hardcore_Chk.Checked = sr.ReadLine()
+                    Max_Bless_Chk.Checked = sr.ReadLine()
+                    Ath_TxtBx.Text = Int(sr.ReadLine())
+                    HP_TxtBx.Text = sr.ReadLine()
+                    HP_Mod_TxtBx.Text = sr.ReadLine()
+                    End_TxtBx.Text = sr.ReadLine()
+                    End_Mod_TxtBx.Text = sr.ReadLine()
+                    sr.ReadLine()
+                    sr.ReadLine()
+                    Wis_TxtBx.Text = sr.ReadLine()
+                    Wis_Mod_TxtBx.Text = sr.ReadLine()
+                    Int_TxtBx.Text = sr.ReadLine()
+                    Int_Mod_TxtBx.Text = sr.ReadLine()
+                    Agi_TxtBx.Text = sr.ReadLine()
+                    Agi_Mod_TxtBx.Text = sr.ReadLine()
+                    Str_TxtBx.Text = sr.ReadLine()
+                    Str_Mod_TxtBx.Text = sr.ReadLine()
+                    Dagger_TxtBx.Text = sr.ReadLine()
+                    Dagger_Mod_TxtBx.Text = sr.ReadLine()
+                    H2H_TxtBx.Text = sr.ReadLine()
+                    H2H_Mod_TxtBx.Text = sr.ReadLine()
+                    Sword_TxtBx.Text = sr.ReadLine()
+                    Sword_Mod_TxtBx.Text = sr.ReadLine()
+                    TwoHand_TxtBx.Text = sr.ReadLine()
+                    TwoHand_Mod_TxtBx.Text = sr.ReadLine()
+                    sr.ReadLine()
+                    sr.ReadLine()
+                    Rage_TxtBx.Text = sr.ReadLine()
+                    Rage_Mod_TxtBx.Text = sr.ReadLine()
+                    AS_TxtBx.Text = sr.ReadLine()
+                    sr.ReadLine()
+                    Attack_TxtBx.Text = sr.ReadLine()
+                    Attack_Mod_TxtBx.Text = sr.ReadLine()
+                    Parry_TxtBx.Text = sr.ReadLine()
+                    Parry_Mod_TxtBx.Text = sr.ReadLine()
+                    Warcry_TxtBx.Text = sr.ReadLine()
+                    Warcry_Mod_TxtBx.Text = sr.ReadLine()
+                    Tactics_TxtBx.Text = sr.ReadLine()
+                    Tactics_Mod_TxtBx.Text = sr.ReadLine()
+                    Surround_TxtBx.Text = sr.ReadLine()
+                    Surround_Mod_TxtBx.Text = sr.ReadLine()
+                    Body_TxtBx.Text = sr.ReadLine()
+                    Body_Mod_TxtBx.Text = sr.ReadLine()
+                    Speed_TxtBx.Text = sr.ReadLine()
+                    Speed_Mod_TxtBx.Text = sr.ReadLine()
+                    sr.ReadLine()
+                    sr.ReadLine()
+                    sr.ReadLine()
+                    sr.ReadLine()
+                    sr.ReadLine()
+                    sr.ReadLine()
+                    sr.ReadLine()
+                    sr.ReadLine()
+                    sr.ReadLine()
+                    sr.ReadLine()
+                    sr.ReadLine()
+                    sr.ReadLine()
+                    sr.ReadLine()
+                    sr.ReadLine()
+                    sr.ReadLine()
+                    sr.ReadLine()
+                    Barter_TxtBx.Text = sr.ReadLine()
+                    Barter_Mod_TxtBx.Text = sr.ReadLine()
+                    Perc_TxtBx.Text = sr.ReadLine()
+                    Perc_Mod_TxtBx.Text = sr.ReadLine()
+                    Stealth_TxtBx.Text = sr.ReadLine()
+                    Stealth_Mod_TxtBx.Text = sr.ReadLine()
+                    Regen_TxtBx.Text = sr.ReadLine()
+                    Regen_Mod_TxtBx.Text = sr.ReadLine()
+                    sr.ReadLine()
+                    sr.ReadLine()
+                    Immunity_TxtBx.Text = sr.ReadLine()
+                    Immunity_Mod_TxtBx.Text = sr.ReadLine()
+                    Prof_TxtBx.Text = sr.ReadLine()
+                End Using
+        End Select
 
         SetExpValues()
 
     End Sub
 
-   
+
     Private Sub frmWarriorCalc_Load(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles MyBase.Load
         SetExpValues()
     End Sub

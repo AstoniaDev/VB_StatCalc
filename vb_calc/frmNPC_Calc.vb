@@ -100,7 +100,6 @@ Public Class frmNPC_Calc
     Private Sub SetMods()
         Dim WisMod, IntMod, AgiMod, StrMod As Integer
         Dim AAS, IAS, SSA, SSI, WIS, IIW, AAI, SSS, WWW As Integer
-        Dim ModVal As Integer
         Dim TactBonus As Integer
 
         If ShowTact_Chk.Checked = True Then TactBonus = Int(TactBonus_TxtBx.Text) Else TactBonus = 0
